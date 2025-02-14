@@ -1,5 +1,5 @@
-"use client";
-import {Form, JSONSchema, createRegistry} from "@repo/jscform";
+"use client"
+import {Form, JSONSchema, createRegistry, ajv} from "@repo/jscform";
 import testSchema from "./test.json";
 import {Input} from "@/components/ui/input.tsx";
 import {Col1Layout} from "@/components/ui/col1Layout.tsx";
@@ -23,7 +23,7 @@ export default function BasicForm() {
         <div>
             <h1 className="text-2xl font-bold mb-4">Basic Form</h1>
             <div>
-                <Form schema={testSchema as JSONSchema} onSubmit={onSubmit} data={{}}></Form>
+                <Form validator={ajv} schema={testSchema as JSONSchema} onSubmit={onSubmit} data={{}}></Form>
             </div>
         </div>
     )

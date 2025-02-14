@@ -38,6 +38,11 @@
   "required": [
     "lastName"
   ],
+  "errorMessage": {
+    "required": {
+      "lastName": "Last name is required"
+    }
+  },
   "if": {
     "properties": {
       "isSelf": {

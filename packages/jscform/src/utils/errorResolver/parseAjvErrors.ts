@@ -37,7 +37,10 @@ export const parseAjvErrors = (ajvErrors: AjvError[] | null | undefined) => {
     return parsedErrors;
 }
 
-export const toNestErrors = (errors: Record<string, any>): any => {
+export const toNestErrors = (errors: Record<string, any> | null): any => {
+    if(errors === null || errors === undefined) {
+        return null;
+    }
     const errorObj = {};
 
     for (const key in errors) {

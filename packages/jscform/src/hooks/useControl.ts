@@ -3,14 +3,15 @@ import get from "lodash/get";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
+import { FieldState } from "../store/types";
 
 export interface UseControlApi {
     schema: JSONSchema | null;
     value: any;
-    errors: any[];
     context: any;
     validator: any;
     onChange: (val: any) => void;
+    fieldState?: FieldState;
 }
 
 export const useControl = (schemaKey: string): UseControlApi => {
@@ -29,10 +30,10 @@ export const useControl = (schemaKey: string): UseControlApi => {
     return {
         schema: getSchemaFromPath(store.schema, schemaKey, "."),
         value: get(store.data, schemaKey.split(".")),
-        errors: get(store.errors, schemaKey.split(".")),
         context: formStore.context,
         validator: formStore.validator,
         onChange,
+        fieldState: get(store.fieldState, schemaKey),
     };
 }
 

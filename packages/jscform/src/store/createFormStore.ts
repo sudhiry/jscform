@@ -1,53 +1,25 @@
 import {JSONSchema} from "../utils/types";
 import {Ajv, AsyncSchema} from "ajv";
-import ajvErrors from "ajv-errors";
 import {BehaviorSubject} from "rxjs";
 import {cloneDeep, set} from "lodash";
 import retrieveSchema from "../utils/retrieveSchema";
-import {parseAjvErrors, toNestErrors} from "../utils/errorResolver/parseAjvErrors";
-
-export interface FormStore {
-    schema: JSONSchema;
-    data: any;
-    errors?: any;
-    validator?: Ajv;
-    context?: any;
-}
-
-const ajv = new Ajv({
-    $data: true,
-    strict: false,
-    allErrors: true,
-    useDefaults: true,
-})
-ajvErrors(ajv);
-
-type Listener = (state: any) => void
+import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
+import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
 
 let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
-
-export interface FormStoreApi {
-    subscribe: (listener: Listener) => () => void;
-    getState: () => { schema: JSONSchema; data: any, errors?: any };
-    getInitialState: () => { schema: JSONSchema; data: any, errors?: any };
-    setState: (key: string, value: any) => void;
-    context?: any;
-    validator?: Ajv;
-}
 
 export const createFormStore = ({
         schema,
         context,
         data,
-        errors,
-        validator = ajv
-    }: FormStore): FormStoreApi => {
+        validator
+    }: FormStoreInput): FormStoreApi => {
 
-    const state = new BehaviorSubject({schema, data, context, validator, errors});
+    const state = new BehaviorSubject<FormState>({schema, data, context, validator});
 
     const rootSchema = cloneDeep(schema);
 
-    const subscribe = (listener: Listener) => {
+    const subscribe = (listener: StoreListener) => {
         const subscription = state.subscribe(listener);
         return () => subscription.unsubscribe();
     };
@@ -61,34 +33,41 @@ export const createFormStore = ({
 
     const getState = () => state.value;
 
-    const validate = async (schema: JSONSchema, data: any) => {
+    const validate = async (schema: JSONSchema, data: any): Promise<{ isValid: boolean; errors: any }> => {
+        let isValid = true;
+        let errors: any;
         try {
-            const validate = validator.compile(schema as unknown as AsyncSchema);
-            const isValid = await validate(data);
-            const errors = !isValid ? parseAjvErrors(validate.errors) : null;
-            return {isValid, errors};
+            const validate = validator!.compile(schema as unknown as AsyncSchema);
+            isValid = !!await validate(data);
+            if (!isValid) {
+                console.log("validate.errors >>>> ", validate.errors);
+                // errors = toNestErrors(parseAjvErrors(validate.errors));
+                errors = parseAjvErrors(validate.errors);
+            }
         } catch (e: unknown) {
-            const errors = parseAjvErrors((e as any).errors);
-            const nestedErrors = errors && toNestErrors(errors);
-            return {isValid: false, errors: nestedErrors};
+            isValid = false;
+            console.log("validate.errors >>>> ", (e as any).errors);
+            // errors = toNestErrors(parseAjvErrors((e as any).errors))
+            errors = parseAjvErrors((e as any).errors);
         }
+        return {isValid, errors};
     }
 
     const setState = async (key: string, value: any) => {
-        const currentData = state.value.data || {};
+        const {data: currentData, context: currentContext} = state.value;
         const newData = set(cloneDeep(currentData), key, value);
         try {
             const [result, newSchema] = await Promise.all([
-                validate(rootSchema, newData),
+                validate(rootSchema, newData), 
                 retrieveSchema(validator, rootSchema, rootSchema, newData, false)
-            ]);
+            ]) ;  
             const newState = {
                 schema: newSchema,
                 data: newData,
-                errors: result.errors,
-                context: context || {},
-                validator: validator || ajv
-            };
+                validator: validator,
+                context: currentContext,
+                fieldState: result.errors && Object.keys(result.errors).reduce((acc, key) => ({...acc,[key]: { error: result.errors[key]}}), {}),
+            } as FormState;
             state.next(newState);
         } catch (error) {
             console.error("Form state update error:", error);

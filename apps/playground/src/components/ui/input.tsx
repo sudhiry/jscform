@@ -5,7 +5,8 @@ import {useControl} from "@repo/jscform";
 
 // @ts-ignore
 const Input = React.forwardRef<HTMLInputElement>(({default: defaultValue, name, title, className, ...props}, ref) => {
-        const {value = '', onChange} = useControl(name);
+        const {value = '', onChange, fieldState} = useControl(name);
+        console.log(`${name} fieldState >>>> `, fieldState);
         return (
             <div>
                 <Label htmlFor={name}>{title}</Label>

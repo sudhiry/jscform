@@ -3,16 +3,18 @@ import {JSONSchema} from "./utils/types";
 import {FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
+import {ajv} from "./defaultAjv";
 
 export interface FormProps {
     schema: JSONSchema;
     data: Record<string, any>;
     context?: Record<string, any>;
     onSubmit: (data: Record<string, any>) => void;
-    validator?: Ajv;
+    validator: Ajv;
 }
 
-export function Form({schema, data, context, validator}: FormProps) {
+
+export function Form({schema, data, context, validator = ajv}: FormProps) {
     // const onRender = (id: string, phase: string, actualDuration: number) => {
     //     console.log({id, phase, actualDuration})
     // }

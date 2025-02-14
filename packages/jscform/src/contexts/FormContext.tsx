@@ -1,7 +1,8 @@
 import React, {createContext, useRef} from "react";
 import {JSONSchema} from "../utils/types";
-import {createFormStore, FormStoreApi} from "../store/createFormStore";
+import {createFormStore} from "../store/createFormStore";
 import {Ajv} from "ajv";
+import { FormStoreApi } from "../store/types";
 
 export const FormContext = createContext<FormStoreApi | undefined>(undefined);
 
@@ -9,7 +10,7 @@ export interface FormProviderProps {
     schema: JSONSchema;
     data: any;
     context?: any;
-    validator?: Ajv;
+    validator: Ajv;
     children: React.ReactNode;
 }
 
