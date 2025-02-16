@@ -5,6 +5,7 @@ import {cloneDeep, set} from "lodash";
 import retrieveSchema from "../utils/retrieveSchema";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
+// import getDefaultFormState from "../utils/getDefaultFormState";
 
 let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
 
@@ -40,14 +41,10 @@ export const createFormStore = ({
             const validate = validator!.compile(schema as unknown as AsyncSchema);
             isValid = !!await validate(data);
             if (!isValid) {
-                console.log("validate.errors >>>> ", validate.errors);
-                // errors = toNestErrors(parseAjvErrors(validate.errors));
                 errors = parseAjvErrors(validate.errors);
             }
         } catch (e: unknown) {
             isValid = false;
-            console.log("validate.errors >>>> ", (e as any).errors);
-            // errors = toNestErrors(parseAjvErrors((e as any).errors))
             errors = parseAjvErrors((e as any).errors);
         }
         return {isValid, errors};
@@ -58,15 +55,18 @@ export const createFormStore = ({
         const newData = set(cloneDeep(currentData), key, value);
         try {
             const [result, newSchema] = await Promise.all([
-                validate(rootSchema, newData), 
+                validate(rootSchema, newData),
                 retrieveSchema(validator, rootSchema, rootSchema, newData, false)
-            ]) ;  
+            ]);
             const newState = {
                 schema: newSchema,
                 data: newData,
                 validator: validator,
                 context: currentContext,
-                fieldState: result.errors && Object.keys(result.errors).reduce((acc, key) => ({...acc,[key]: { error: result.errors[key]}}), {}),
+                fieldState: result.errors && Object.keys(result.errors).reduce((acc, key) => ({
+                    ...acc,
+                    [key]: {error: result.errors[key]}
+                }), {}),
             } as FormState;
             state.next(newState);
         } catch (error) {
@@ -75,6 +75,13 @@ export const createFormStore = ({
             state.next(state.value);
         }
     };
+
+    // (async () => {
+    //     const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
+    //     setState("", defaultValue);
+    // })().catch((e) => {
+    //     console.error("Form default state update error", e);
+    // });
 
     return {
         subscribe,

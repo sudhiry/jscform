@@ -15,12 +15,7 @@ export interface FormProps {
 
 
 export function Form({schema, data, context, validator = ajv}: FormProps) {
-    // const onRender = (id: string, phase: string, actualDuration: number) => {
-    //     console.log({id, phase, actualDuration})
-    // }
-    return <FormProvider data={data} schema={schema} context={context} validator={validator}>
-        {/*<Profiler id={"DynamicComponent"} onRender={onRender}>*/}
-            <DynamicUIComponent/>
-        {/*</Profiler>*/}
-    </FormProvider>
+    return (<FormProvider data={data} schema={schema} context={context} validator={validator}>
+        <DynamicUIComponent/>
+    </FormProvider>)
 }

@@ -32,7 +32,7 @@
       "ui:widget": {
         "widget": "Checkbox"
       },
-      "default": false
+      "default": true
     }
   },
   "required": [
@@ -66,7 +66,8 @@
             "type": "string",
             "ui:widget": {
               "widget": "Input"
-            }
+            },
+            "default": "John"
           },
           "otherMiddleName": {
             "title": "Other Middle Name",

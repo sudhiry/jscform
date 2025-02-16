@@ -95,7 +95,7 @@ export async function computeDefaults(
 ): Promise<GenericObjectType | GenericObjectType[] | undefined> {
     const formData: GenericObjectType = (isObject(rawFormData) ? rawFormData : {}) as GenericObjectType;
     const schema: JSONSchema = isObject(rawSchema) ? rawSchema : ({} as JSONSchema);
-    // Compute the defaults recursively: give highest priority to deepest nodes.
+    // Compute the defaults recursively: give the highest priority to the deepest nodes.
     let defaults: GenericObjectType | GenericObjectType[] | undefined = parentDefaults;
     // If we get a new schema, then we need to recompute defaults again for the new schema found.
     let schemaToCompute: JSONSchema | null = null;
@@ -167,7 +167,7 @@ export async function computeDefaults(
                     required: retrievedSchema.required?.includes(key),
                 });
                 return acc;
-            }) as GenericObjectType;
+            }, {}) as GenericObjectType;
 
             if (retrievedSchema.additionalProperties) {
                 // as per spec additionalProperties may be either schema or boolean

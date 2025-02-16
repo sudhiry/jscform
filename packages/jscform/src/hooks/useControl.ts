@@ -24,15 +24,12 @@ export const useControl = (schemaKey: string): UseControlApi => {
         () => formStore.getState(),
         () => formStore.getInitialState()
     );
-    const onChange = (val: any) => {
-        formStore.setState(schemaKey, val);
-    }
     return {
         schema: getSchemaFromPath(store.schema, schemaKey, "."),
         value: get(store.data, schemaKey.split(".")),
         context: formStore.context,
         validator: formStore.validator,
-        onChange,
+        onChange: (val: any) => {formStore.setState(schemaKey, val)},
         fieldState: get(store.fieldState, schemaKey),
     };
 }
