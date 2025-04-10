@@ -12,3 +12,8 @@ export type FormContextType = GenericObjectType;
 
 export type ErrorMessage = ErrorObject<'errorMessage', { errors: (DefinedError & { emUsed: boolean })[] }>;
 export type AjvError = ErrorObject | ErrorMessage | DefinedError;
+
+export type FieldError = {
+    type: string;
+    message: string;
+}
