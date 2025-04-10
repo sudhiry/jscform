@@ -5,7 +5,8 @@ import {useControl} from "@repo/jscform";
 
 // @ts-ignore
 const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, ...props}, ref) => {
-        const {value = '', onChange} = useControl(name);
+        const {value = '', onChange, fieldState} = useControl(name);
+        const [isDirty, setIsDirty] = React.useState(false);
         return (
             <div>
                 <Label htmlFor={name}>{title}</Label>
@@ -19,8 +20,11 @@ const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, ...p
                     ref={ref}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
+                    onBlur={() => {
+                        setIsDirty(true);
+                    }}
                 />
-                {/*{error && <p className="mt-1 text-sm text-red-500">{error}</p>}*/}
+                {isDirty && fieldState?.error && <p className="mt-1 text-sm text-red-500">{fieldState.error.message}</p>}
             </div>
         )
     }

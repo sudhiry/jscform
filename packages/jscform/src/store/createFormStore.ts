@@ -38,14 +38,14 @@ export const createFormStore = ({
         let isValid = true;
         let errors: any;
         try {
-            const validate = validator!.compile(schema as unknown as AsyncSchema);
-            isValid = !!await validate(data);
+            const validateSchema = validator!.compile(schema as unknown as AsyncSchema);
+            isValid = !!await validateSchema(data);
             if (!isValid) {
-                errors = parseAjvErrors(validate.errors);
+                errors = parseAjvErrors(validateSchema.errors, schema);
             }
         } catch (e: unknown) {
             isValid = false;
-            errors = parseAjvErrors((e as any).errors);
+            errors = parseAjvErrors((e as any).errors, schema);
         }
         return {isValid, errors};
     }
