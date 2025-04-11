@@ -15,7 +15,8 @@
       "errorMessage": {
         "required": "First Name is required",
         "minLength": "First Name should have atleast 3 characters"
-      }
+      },
+      "default": "David"
     },
     "middleName": {
       "title": "Middle Name",
@@ -39,7 +40,8 @@
       "type": "boolean",
       "ui:widget": {
         "widget": "Checkbox"
-      }
+      },
+      "default": true
     }
   },
   "required": [

@@ -5,7 +5,7 @@ import {cloneDeep, set} from "lodash";
 import retrieveSchema from "../utils/retrieveSchema";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
-// import getDefaultFormState from "../utils/getDefaultFormState";
+import getDefaultFormState from "../utils/getDefaultFormState";
 
 let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
 
@@ -76,12 +76,12 @@ export const createFormStore = ({
         }
     };
 
-    // (async () => {
-    //     const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
-    //     setState("", defaultValue);
-    // })().catch((e) => {
-    //     console.error("Form default state update error", e);
-    // });
+    (async () => {
+        const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
+        setState("", defaultValue);
+    })().catch((e) => {
+        console.error("Form default state update error", e);
+    });
 
     return {
         subscribe,
