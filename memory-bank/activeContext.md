@@ -1,19 +1,22 @@
 # Active Context: JSCForm
 
 ## Current Work Focus
-**Memory Bank Initialization**: Setting up comprehensive documentation system for the JSCForm project to enable effective context management across development sessions.
+**RxJS to Signals Migration**: Successfully replaced RxJS-based state management with a custom signals library implementation to reduce bundle size and improve performance.
 
 ## Recent Changes
-- Created `projectbrief.md`: Established core project overview and scope
-- Created `productContext.md`: Defined problem statement, solution approach, and user experience goals
-- Created `techContext.md`: Documented technology stack, architecture, and development setup
-- Partially created `systemPatterns.md`: Started documenting architectural patterns (needs completion)
+- **Replaced RxJS with Signals**: Migrated from BehaviorSubject to custom signals implementation
+- **Created signals-based store**: `createSignalsFormStore.ts` replaces `createFormStore.ts`
+- **Updated Form components**: Modified `Form.tsx` to use `SignalsFormProvider`
+- **Created new hooks**: `useSignalsControl.ts` and updated `useControl.ts` and `useSchema.ts`
+- **Updated contexts**: Created `SignalsFormContext.tsx` to replace `FormContext.tsx`
+- **Removed RxJS dependency**: Eliminated `rxjs` from package.json dependencies
+- **Updated exports**: Added signals-related exports to main index file
 
 ## Next Steps
-1. **Complete systemPatterns.md**: Finish documenting the architectural patterns and design decisions
-2. **Create progress.md**: Document current project status, what works, and what needs to be built
-3. **Validate memory bank completeness**: Ensure all core files are properly documented
-4. **Test playground application**: Verify the current state of the demo application
+1. **Test playground thoroughly**: Verify all form functionality works with signals
+2. **Performance testing**: Compare performance before/after signals migration
+3. **Documentation updates**: Update README and examples to reflect signals usage
+4. **Bundle size analysis**: Measure reduction in bundle size after RxJS removal
 
 ## Active Decisions and Considerations
 
