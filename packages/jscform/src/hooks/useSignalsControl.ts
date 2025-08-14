@@ -14,10 +14,10 @@ export interface UseControlApi {
     fieldState?: FieldState;
 }
 
-export const useControl = (schemaKey: string): UseControlApi => {
+export const useSignalsControl = (schemaKey: string): UseControlApi => {
     const formStore = useContext(SignalsFormContext);
     if (!formStore) {
-        throw Error("useControl must be used within a SignalsFormProvider");
+        throw Error("useSignalsControl must be used within a SignalsFormProvider");
     }
     
     // Use React state to trigger re-renders when the store changes

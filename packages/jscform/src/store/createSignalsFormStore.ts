@@ -1,28 +1,29 @@
 import {JSONSchema} from "../utils/types";
 import {Ajv, AsyncSchema} from "ajv";
-import {BehaviorSubject} from "rxjs";
 import {cloneDeep, set} from "lodash";
 import retrieveSchema from "../utils/retrieveSchema";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
 import getDefaultFormState from "../utils/getDefaultFormState";
+import {signal} from "../signals/signals";
 
 let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
 
-export const createFormStore = ({
+export const createSignalsFormStore = ({
         schema,
         context,
         data,
         validator
     }: FormStoreInput): FormStoreApi => {
 
-    const state = new BehaviorSubject<FormState>({schema, data, context, validator});
+    const state = signal<FormState>({schema, data, context, validator});
 
     const rootSchema = cloneDeep(schema);
 
     const subscribe = (listener: StoreListener) => {
-        const subscription = state.subscribe(listener);
-        return () => subscription.unsubscribe();
+        return state.subscribe((newState: FormState) => {
+            listener(newState);
+        });
     };
 
     const getInitialState = () => {
@@ -68,11 +69,10 @@ export const createFormStore = ({
                     [key]: {error: result.errors[key]}
                 }), {}),
             } as FormState;
-            state.next(newState);
+            state.value = newState;
         } catch (error) {
             console.error("Form state update error:", error);
-            // Fallback to previous state on error
-            state.next(state.value);
+            // Fallback to previous state on error - no change needed since we don't update on error
         }
     };
 

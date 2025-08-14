@@ -1,17 +1,24 @@
-import {useContext, useSyncExternalStore, useMemo} from "react";
-import {FormContext} from "../contexts/FormContext";
+import {useContext, useState, useEffect, useMemo} from "react";
+import {SignalsFormContext} from "../contexts/SignalsFormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
+import {FormState} from "../store/types";
 
 export const useSchema = (schemaKey: string): JSONSchema | null => {
-    const formStore = useContext(FormContext);
+    const formStore = useContext(SignalsFormContext);
     if (!formStore) {
-        throw Error("useSchema must be used within a FormProvider");
+        throw Error("useSchema must be used within a SignalsFormProvider");
     }
-    const schema = useSyncExternalStore(
-        formStore.subscribe,
-        () => formStore.getState().schema,
-        () => formStore.getInitialState().schema
-    );
-    return useMemo(() => getSchemaFromPath(schema, schemaKey, "."), [schema, schemaKey]);
+    
+    // Use React state to trigger re-renders when the store changes
+    const [store, setStore] = useState<FormState>(formStore.getState());
+    
+    useEffect(() => {
+        const unsubscribe = formStore.subscribe((newState: FormState) => {
+            setStore(newState);
+        });
+        return unsubscribe;
+    }, [formStore]);
+    
+    return useMemo(() => getSchemaFromPath(store.schema, schemaKey, "."), [store.schema, schemaKey]);
 }

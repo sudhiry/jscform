@@ -1,5 +1,11 @@
 export * from "./utils/types";
 export * from "./createRegistry";
 export * from "./Form";
+export * from "./SignalsForm";
 export * from "./hooks/useControl";
+export { useSignalsControl } from "./hooks/useSignalsControl";
+export * from "./contexts/SignalsFormContext";
+export * from "./signals/signals";
+export * from "./signals/react-signals";
+export * from "./signals/async-signals";
 export { ajv } from "./defaultAjv";
