@@ -1,24 +1,21 @@
-import {useContext, useState, useEffect, useMemo} from "react";
+import {useContext} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
-import {FormState} from "../store/types";
+import {useSignal, useComputed} from "../signals/react-signals";
 
 export const useSchema = (schemaKey: string): JSONSchema | null => {
     const formStore = useContext(FormContext);
     if (!formStore) {
-        throw Error("useSchema must be used within a SignalsFormProvider");
+        throw Error("useSchema must be used within a FormProvider");
     }
 
-    // Use React state to trigger re-renders when the store changes
-    const [store, setStore] = useState<FormState>(formStore.getState());
+    // Use signals to automatically subscribe to store changes
+    const store = useSignal(formStore.state);
 
-    useEffect(() => {
-        const unsubscribe = formStore.subscribe((newState: FormState) => {
-            setStore(newState);
-        });
-        return unsubscribe;
-    }, [formStore]);
-
-    return useMemo(() => getSchemaFromPath(store.schema, schemaKey, "."), [store.schema, schemaKey]);
+    // Use computed value for derived schema to optimize re-renders
+    return useComputed(() => 
+        getSchemaFromPath(store.schema, schemaKey, "."), 
+        [store.schema, schemaKey]
+    );
 }

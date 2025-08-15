@@ -1,5 +1,6 @@
 import {JSONSchema} from "../utils/types";
 import {Ajv} from "ajv";
+import {Signal} from "../signals/signals";
 
 export interface FormStoreInput {
     schema: JSONSchema;
@@ -22,15 +23,16 @@ export interface FormState {
     data: any;
     validator?: Ajv;
     context?: any;
-    fieldState?: Map<string, FieldState>;
+    fieldState?: Record<string, FieldState>;
 }
 
-export type StoreListener = (state: any) => void
+export type StoreListener = (state: FormState) => void
 
 export interface FormStoreApi {
+    state: Signal<FormState>;
     subscribe: (listener: StoreListener) => () => void;
-    getState: () => { schema: JSONSchema; data: any, fieldState?: Map<string, FieldState> };
-    getInitialState: () => { schema: JSONSchema; data: any, fieldState?: Map<string, FieldState> };
+    getState: () => FormState;
+    getInitialState: () => FormState;
     setState: (key: string, value: any) => void;
     context?: any;
     validator?: Ajv;

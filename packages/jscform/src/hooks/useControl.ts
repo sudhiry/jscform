@@ -1,9 +1,10 @@
-import {useContext, useState, useEffect} from "react";
+import {useContext, useMemo} from "react";
 import get from "lodash/get";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
-import {FieldState, FormState} from "../store/types";
+import {FieldState} from "../store/types";
+import {useSignal, useComputed} from "../signals/react-signals";
 
 export interface UseControlApi {
     schema: JSONSchema | null;
@@ -17,25 +18,40 @@ export interface UseControlApi {
 export const useControl = (schemaKey: string): UseControlApi => {
     const formStore = useContext(FormContext);
     if (!formStore) {
-        throw Error("useSignalsControl must be used within a SignalsFormProvider");
+        throw Error("useControl must be used within a FormProvider");
     }
 
-    // Use React state to trigger re-renders when the store changes
-    const [store, setStore] = useState<FormState>(formStore.getState());
+    // Use signals to automatically subscribe to store changes
+    const store = useSignal(formStore.state);
 
-    useEffect(() => {
-        const unsubscribe = formStore.subscribe((newState: FormState) => {
-            setStore(newState);
-        });
-        return unsubscribe;
-    }, [formStore]);
+    // Use computed values for derived state to optimize re-renders
+    const schema = useComputed(() => 
+        getSchemaFromPath(store.schema, schemaKey, "."), 
+        [store.schema, schemaKey]
+    );
+
+    const value = useComputed(() => 
+        get(store.data, schemaKey.split(".")), 
+        [store.data, schemaKey]
+    );
+
+    const fieldState = useComputed(() => 
+        get(store.fieldState, schemaKey), 
+        [store.fieldState, schemaKey]
+    );
+
+    // Memoize onChange handler to prevent unnecessary re-renders
+    const onChange = useMemo(() => 
+        (val: any) => formStore.setState(schemaKey, val), 
+        [formStore, schemaKey]
+    );
 
     return {
-        schema: getSchemaFromPath(store.schema, schemaKey, "."),
-        value: get(store.data, schemaKey.split(".")),
+        schema,
+        value,
         context: formStore.context,
         validator: formStore.validator,
-        onChange: (val: any) => {formStore.setState(schemaKey, val)},
-        fieldState: get(store.fieldState, schemaKey),
+        onChange,
+        fieldState,
     };
 }

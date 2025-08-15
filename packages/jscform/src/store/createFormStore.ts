@@ -1,13 +1,11 @@
 import {JSONSchema} from "../utils/types";
-import {Ajv, AsyncSchema} from "ajv";
+import {AsyncSchema} from "ajv";
 import {cloneDeep, set} from "lodash";
 import retrieveSchema from "../utils/retrieveSchema";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
 import getDefaultFormState from "../utils/getDefaultFormState";
-import {signal} from "../signals/signals";
-
-let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
+import {signal, computed, batch} from "../signals/signals";
 
 export const createFormStore = ({
         schema,
@@ -16,9 +14,23 @@ export const createFormStore = ({
         validator
     }: FormStoreInput): FormStoreApi => {
 
-    const state = signal<FormState>({schema, data, context, validator});
+    // Core state signals
+    const dataSignal = signal(data);
+    const schemaSignal = signal(schema);
+    const contextSignal = signal(context);
+    const validatorSignal = signal(validator);
+    const fieldStateSignal = signal<Record<string, any>>({});
 
     const rootSchema = cloneDeep(schema);
+
+    // Computed signal for the complete form state
+    const state = computed<FormState>(() => ({
+        schema: schemaSignal.value,
+        data: dataSignal.value,
+        context: contextSignal.value,
+        validator: validatorSignal.value,
+        fieldState: fieldStateSignal.value,
+    }));
 
     const subscribe = (listener: StoreListener) => {
         return state.subscribe((newState: FormState) => {
@@ -26,13 +38,7 @@ export const createFormStore = ({
         });
     };
 
-    const getInitialState = () => {
-        if (cachedState !== state.value) {
-            cachedState = state.value
-        }
-        return cachedState;
-    };
-
+    const getInitialState = () => state.value;
     const getState = () => state.value;
 
     const validate = async (schema: JSONSchema, data: any): Promise<{ isValid: boolean; errors: any }> => {
@@ -52,38 +58,46 @@ export const createFormStore = ({
     }
 
     const setState = async (key: string, value: any) => {
-        const {data: currentData, context: currentContext} = state.value;
+        const currentData = dataSignal.value;
         const newData = set(cloneDeep(currentData), key, value);
+        
         try {
             const [result, newSchema] = await Promise.all([
                 validate(rootSchema, newData),
                 retrieveSchema(validator, rootSchema, rootSchema, newData, false)
             ]);
-            const newState = {
-                schema: newSchema,
-                data: newData,
-                validator: validator,
-                context: currentContext,
-                fieldState: result.errors && Object.keys(result.errors).reduce((acc, key) => ({
-                    ...acc,
-                    [key]: {error: result.errors[key]}
-                }), {}),
-            } as FormState;
-            state.value = newState;
+
+            // Use batch to update multiple signals atomically
+            batch(() => {
+                dataSignal.value = newData;
+                schemaSignal.value = newSchema;
+                if (result.errors) {
+                    fieldStateSignal.value = Object.keys(result.errors).reduce((acc, key) => ({
+                        ...acc,
+                        [key]: {error: result.errors[key]}
+                    }), {});
+                } else {
+                    fieldStateSignal.value = {};
+                }
+            });
         } catch (error) {
             console.error("Form state update error:", error);
             // Fallback to previous state on error - no change needed since we don't update on error
         }
     };
 
+    // Initialize with default values
     (async () => {
-        const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
-        setState("", defaultValue);
-    })().catch((e) => {
-        console.error("Form default state update error", e);
-    });
+        try {
+            const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
+            setState("", defaultValue);
+        } catch (e) {
+            console.error("Form default state update error", e);
+        }
+    })();
 
     return {
+        state,
         subscribe,
         getState,
         getInitialState,
