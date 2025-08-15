@@ -1,9 +1,8 @@
 import React from "react";
-import { FormProvider } from "../contexts/FormContext";
+import { Form } from "../Form";
 import { useFormState, useFormData, useFormValidation } from "../hooks/useFormState";
 import { useSignalEffect } from "../signals/react-signals";
 import { ajv } from "../defaultAjv";
-import { DynamicUIComponent } from "../components/DynamicUIComponent";
 
 // Example schema
 const exampleSchema = {
@@ -45,22 +44,19 @@ export function SignalsFormExample() {
     <div className="signals-form-example">
       <h2>Signals-Optimized Form Example</h2>
       
-      <FormProvider
+      <Form
         schema={exampleSchema}
         data={initialData}
         validator={ajv}
-        enableDevTools={true}
-        onStateChange={(state: any) => {
-          console.log("Form state changed:", state);
+        onValidationChange={(isValid, errors) => {
+          console.log("Validation changed:", { isValid, errors });
         }}
-      >
-        <div className="form-content">
-          <div className="form-fields">
-            <DynamicUIComponent />
-          </div>
-          <FormContent />
-        </div>
-      </FormProvider>
+        onChange={(data) => {
+          console.log("Form data changed:", data);
+        }}
+      />
+      
+      <FormContent />
     </div>
   );
 }

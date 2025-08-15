@@ -10,7 +10,8 @@
 - **✅ Maintained API Compatibility**: All existing hooks and components work with new signals-based store
 - **✅ Removed RxJS Dependency**: Successfully eliminated `rxjs` from package.json dependencies
 - **✅ Enhanced Exports**: Added signals-related exports including react-signals and async-signals
-- **✅ Dual Form Components**: Both `Form.tsx` and `SignalsForm.tsx` available for different use cases
+- **✅ Signals Refactoring Complete**: Successfully refactored createFormStore, useControl, useSchema, and components to properly leverage signals features
+- **✅ Unified Form Component**: Renamed SignalsForm to Form and removed the old Form component for a single, optimized implementation
 - **✅ Documentation Enhancement**: Created comprehensive README with getting started guide, API documentation, and signals usage examples
 - **✅ Contributing Guide**: Added detailed CONTRIBUTING.md with development workflow and community guidelines
 - **✅ Complex Form Example**: Built advanced playground example demonstrating nested objects, conditional fields, and real-time data display

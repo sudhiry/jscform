@@ -9,7 +9,7 @@ JSCForm follows a layered architecture with clear separation of concerns:
 ├─────────────────────────────────────┤
 │         FormProvider/Context        │
 ├─────────────────────────────────────┤
-│          Form Store (RxJS)          │
+│          Form Store (Signals)       │
 ├─────────────────────────────────────┤
 │     Schema Utils & Validation       │
 ├─────────────────────────────────────┤
@@ -25,9 +25,11 @@ JSCForm follows a layered architecture with clear separation of concerns:
 - **Benefits**: Centralized state management, prop drilling avoidance
 
 ### 2. Store Pattern (Signals-based)
-- **FormStore**: Reactive state management using custom signals library
-- **State Structure**: `{schema, data, context, validator, fieldState}`
-- **Benefits**: Lightweight reactive updates, async validation support, reduced bundle size, better performance
+- **FormStore**: Reactive state management using custom signals library with granular signals
+- **Granular Signals**: Individual signals for data, schema, context, validator, and fieldState
+- **Computed State**: Main form state derived from individual signals using computed()
+- **Batch Updates**: Atomic updates using batch() to prevent cascading re-renders
+- **Benefits**: Selective re-renders, computed caching, lightweight reactive updates, optimal performance
 
 ### 3. Registry Pattern
 - **Component Registry**: Global registry for UI components

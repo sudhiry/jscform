@@ -1,7 +1,6 @@
 export * from "./utils/types";
 export * from "./createRegistry";
 export * from "./Form";
-export * from "./SignalsForm";
 export * from "./hooks/useControl";
 export * from "./hooks/useSchema";
 export * from "./hooks/useFormState";
