@@ -1,9 +1,10 @@
+import { signal, computed, batch } from "@preact/signals-react";
 import {JSONSchema} from "../utils/types";
 import {AsyncSchema} from "ajv";
 import {cloneDeep, set} from "lodash";
 import {retrieveSchemaRecursive} from "../utils/retrieveSchemaRecursive";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
-import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
+import {FormState, FormStoreApi, FormStoreInput} from "./types";
 import getDefaultFormState from "../utils/getDefaultFormState";
 
 export const createFormStore = ({
@@ -35,12 +36,6 @@ export const createFormStore = ({
         validator: validatorSignal.value,
         fieldState: fieldStateSignal.value,
     }));
-
-    const subscribe = (listener: StoreListener) => {
-        return state.subscribe((newState: FormState) => {
-            listener(newState);
-        });
-    };
 
     const getInitialState = () => state.value;
     const getState = () => state.value;
@@ -131,7 +126,6 @@ export const createFormStore = ({
 
     return {
         state,
-        subscribe,
         getState,
         getInitialState,
         setState,

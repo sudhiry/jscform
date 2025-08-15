@@ -11,6 +11,8 @@
 - **✅ Removed RxJS Dependency**: Successfully eliminated `rxjs` from package.json dependencies
 - **✅ Enhanced Exports**: Added signals-related exports including react-signals and async-signals
 - **✅ Signals Refactoring Complete**: Successfully refactored createFormStore, useControl, useSchema, and components to properly leverage signals features
+- **✅ @preact/signals-react Usage**: Updated the entire codebase to consistently use `@preact/signals-react` for state management.
+- **✅ Type Safety**: Resolved all type errors related to the signals refactoring.
 - **✅ Unified Form Component**: Renamed SignalsForm to Form and removed the old Form component for a single, optimized implementation
 - **✅ Documentation Enhancement**: Created comprehensive README with getting started guide, API documentation, and signals usage examples
 - **✅ Contributing Guide**: Added detailed CONTRIBUTING.md with development workflow and community guidelines

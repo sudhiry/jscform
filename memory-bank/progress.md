@@ -32,6 +32,8 @@
 - **✅ Batch Updates**: Atomic updates using batch() to prevent cascading re-renders
 - **✅ React Integration**: Comprehensive React hooks for signals integration (useSignal, useComputed, useSignalEffect)
 - **✅ Async Support**: AsyncComputed signals for handling asynchronous operations
+- **✅ @preact/signals-react Usage**: Updated the entire codebase to consistently use `@preact/signals-react` for state management.
+- **✅ Type Safety**: Resolved all type errors related to the signals refactoring.
 
 ## 🔄 Current Status
 

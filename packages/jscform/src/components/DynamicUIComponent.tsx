@@ -1,4 +1,5 @@
 import React, {memo, ReactElement, useMemo} from "react";
+import { useComputed } from "@preact/signals-react";
 import {PROPERTIES_KEY, UI_WIDGET} from "../utils/constants";
 import {globalRegistry} from "../createRegistry";
 import {useSchema} from "../hooks/useSchema";
@@ -31,7 +32,7 @@ export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProp
             Widget,
             hasProperties: !!schema[PROPERTIES_KEY]
         };
-    }, [schema, schemaKey]);
+    });
 
     // Use computed for child component keys to optimize re-renders
     const childKeys = useComputed(() => {
@@ -39,13 +40,13 @@ export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProp
         return Object.keys(schema[PROPERTIES_KEY]).map(property =>
             `${schemaKey ? schemaKey + "." : ""}${property}`
         );
-    }, [schema, schemaKey]);
+    });
 
-    if (!widgetInfo) {
+    if (!widgetInfo.value) {
         return null;
     }
 
-    const { uiWidget, Widget, hasProperties } = widgetInfo;
+    const { uiWidget, Widget, hasProperties } = widgetInfo.value;
 
     if (!hasProperties) {
         return <Widget {...schema} {...uiWidget} name={schemaKey}></Widget>
@@ -55,14 +56,14 @@ export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProp
 
     // Memoize child components to prevent unnecessary re-renders
     const childComponents = useMemo(() => {
-        return childKeys.map(childKey => (
+        return childKeys.value.map((childKey: string) => (
             <DynamicUIComponent
                 schemaKey={childKey}
                 key={childKey}
                 {...uiWidget}
             />
         ));
-    }, [childKeys, uiWidget]);
+    }, [childKeys.value, uiWidget]);
 
     return <ContainerComponent>{childComponents}</ContainerComponent>;
 });

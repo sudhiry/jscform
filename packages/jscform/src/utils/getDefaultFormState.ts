@@ -12,7 +12,7 @@ import mergeObjects from './mergeObjects';
 import mergeSchemas from './mergeSchemas';
 import {GenericObjectType, JSONSchema, ValidatorType,} from './types';
 import isMultiSelect from './isMultiSelect';
-import retrieveSchema, {resolveDependencies} from './retrieveSchema';
+import {resolveDependencies} from './retrieveSchema';
 import {retrieveSchemaRecursive} from './retrieveSchemaRecursive';
 import * as ValidatorUtil from './validatorUtils';
 import pMap from "p-map";

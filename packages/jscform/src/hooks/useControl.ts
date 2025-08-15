@@ -4,7 +4,7 @@ import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
 import {FieldState} from "../store/types";
-import {useComputed, useSignal} from "@preact/signals-react";
+import {useComputed} from "@preact/signals-react";
 
 export interface UseControlApi {
     schema: JSONSchema | null;
@@ -21,37 +21,33 @@ export const useControl = (schemaKey: string): UseControlApi => {
         throw Error("useControl must be used within a FormProvider");
     }
 
-    // Use signals to automatically subscribe to store changes
-    const store = useSignal(formStore.state);
+    const { state, setState, context, validator } = formStore;
 
     // Use computed values for derived state to optimize re-renders
     const schema = useComputed(() =>
-        getSchemaFromPath(store.schema, schemaKey, "."),
-        [store.schema, schemaKey]
+        getSchemaFromPath(state.value.schema, schemaKey, ".")
     );
 
     const value = useComputed(() =>
-        get(store.data, schemaKey.split(".")),
-        [store.data, schemaKey]
+        get(state.value.data, schemaKey.split("."))
     );
 
     const fieldState = useComputed(() =>
-        get(store.fieldState, schemaKey),
-        [store.fieldState, schemaKey]
+        get(state.value.fieldState, schemaKey)
     );
 
     // Memoize onChange handler to prevent unnecessary re-renders
     const onChange = useMemo(() =>
-        (val: any) => formStore.setState(schemaKey, val),
-        [formStore, schemaKey]
+        (val: any) => setState(schemaKey, val),
+        [setState, schemaKey]
     );
 
     return {
-        schema,
-        value,
-        context: formStore.context,
-        validator: formStore.validator,
+        schema: schema.value,
+        value: value.value,
+        context,
+        validator,
         onChange,
-        fieldState,
+        fieldState: fieldState.value,
     };
 }

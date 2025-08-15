@@ -1,4 +1,5 @@
 import {useContext} from "react";
+import { useComputed } from "@preact/signals-react";
 import {FormContext} from "../contexts/FormContext";
 import {FormState} from "../store/types";
 
@@ -11,7 +12,7 @@ export function useFormState(): FormState {
         throw Error("useFormState must be used within a FormProvider");
     }
 
-    return useSignal(formStore.state);
+    return formStore.state.value;
 }
 
 /**
@@ -23,8 +24,9 @@ export function useFormData(): any {
         throw Error("useFormData must be used within a FormProvider");
     }
 
-    const state = useSignal(formStore.state);
-    return useComputed(() => state.data, [state.data]);
+    const { state } = formStore;
+    const data = useComputed(() => state.value.data);
+    return data.value;
 }
 
 /**
@@ -40,10 +42,10 @@ export function useFormValidation(): {
         throw Error("useFormValidation must be used within a FormProvider");
     }
 
-    const state = useSignal(formStore.state);
+    const { state } = formStore;
 
-    return useComputed(() => {
-        const fieldState = state.fieldState || {};
+    const validation = useComputed(() => {
+        const fieldState = state.value.fieldState || {};
         const errors = Object.keys(fieldState).reduce((acc, key) => {
             if (fieldState[key]?.error) {
                 acc[key] = fieldState[key].error;
@@ -58,7 +60,8 @@ export function useFormValidation(): {
             errors,
             hasErrors
         };
-    }, [state.fieldState]);
+    });
+    return validation.value;
 }
 
 /**

@@ -1,5 +1,6 @@
 import {JSONSchema} from "../utils/types";
 import {Ajv} from "ajv";
+import { Signal } from "@preact/signals-react";
 
 export interface FormStoreInput {
     schema: JSONSchema;
@@ -29,7 +30,6 @@ export type StoreListener = (state: FormState) => void
 
 export interface FormStoreApi {
     state: Signal<FormState>;
-    subscribe: (listener: StoreListener) => () => void;
     getState: () => FormState;
     getInitialState: () => FormState;
     setState: (key: string, value: any) => void;

@@ -1,6 +1,6 @@
 import React from "react";
 import {JSONSchema} from "./utils/types";
-import {FormProvider} from "./contexts/FormContext";
+import {FormContext, FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
@@ -46,22 +46,27 @@ interface FormContentProps {
 }
 
 function FormContent({ onChange, onValidationChange }: FormContentProps) {
+    const formStore = React.useContext(FormContext);
+    if (!formStore) {
+        throw new Error("FormContent must be used within a FormProvider");
+    }
+    const { state } = formStore;
+
     // Use signal effects to react to form state changes
     useSignalEffect(() => {
         // This effect will run whenever form data changes
         if (onChange) {
-            // Access form store and call onChange with current data
-            // This would need access to the form store context
+            onChange(state.value.data);
         }
-    }, [onChange]);
+    });
 
     useSignalEffect(() => {
         // This effect will run whenever validation state changes
         if (onValidationChange) {
-            // Access form store and call onValidationChange with validation state
-            // This would need access to the form store context
+            const isValid = Object.keys(state.value.fieldState ?? {}).length === 0;
+            onValidationChange(isValid, state.value.fieldState);
         }
-    }, [onValidationChange]);
+    });
 
     return <DynamicUIComponent />;
 }

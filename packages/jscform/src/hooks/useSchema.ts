@@ -1,4 +1,5 @@
 import {useContext} from "react";
+import {useComputed} from "@preact/signals-react";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
@@ -8,13 +9,11 @@ export const useSchema = (schemaKey: string): JSONSchema | null => {
     if (!formStore) {
         throw Error("useSchema must be used within a FormProvider");
     }
-
-    // Use signals to automatically subscribe to store changes
-    const store = useSignal(formStore.state);
+    const { state } = formStore;
 
     // Use computed value for derived schema to optimize re-renders
-    return useComputed(() =>
-        getSchemaFromPath(store.schema, schemaKey, "."),
-        [store.schema, schemaKey]
+    const schema = useComputed(() =>
+        getSchemaFromPath(state.value.schema, schemaKey, ".")
     );
+    return schema.value;
 }

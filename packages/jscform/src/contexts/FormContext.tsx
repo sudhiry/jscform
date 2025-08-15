@@ -1,4 +1,5 @@
 import React, {createContext, useRef, useEffect} from "react";
+import { effect } from "@preact/signals-react";
 import {JSONSchema} from "../utils/types";
 import {createFormStore} from "../store/createFormStore";
 import {Ajv} from "ajv";
