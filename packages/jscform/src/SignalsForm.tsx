@@ -1,6 +1,6 @@
 import React from "react";
 import {JSONSchema} from "./utils/types";
-import {SignalsFormProvider} from "./contexts/SignalsFormContext";
+import {FormProvider} from "./contexts/FormContext";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {Ajv} from "ajv";
 
@@ -29,7 +29,7 @@ export function SignalsForm({
     };
 
     return (
-        <SignalsFormProvider
+        <FormProvider
             schema={schema}
             data={data}
             context={context}
@@ -38,6 +38,6 @@ export function SignalsForm({
             <form onSubmit={handleSubmit}>
                 {children || <DynamicUIComponent schemaKey="" />}
             </form>
-        </SignalsFormProvider>
+        </FormProvider>
     );
 }

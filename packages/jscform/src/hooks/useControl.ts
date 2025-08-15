@@ -1,6 +1,6 @@
 import {useContext, useState, useEffect} from "react";
 import get from "lodash/get";
-import {SignalsFormContext} from "../contexts/SignalsFormContext";
+import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
 import {FieldState, FormState} from "../store/types";
@@ -15,21 +15,21 @@ export interface UseControlApi {
 }
 
 export const useControl = (schemaKey: string): UseControlApi => {
-    const formStore = useContext(SignalsFormContext);
+    const formStore = useContext(FormContext);
     if (!formStore) {
-        throw Error("useControl must be used within a SignalsFormProvider");
+        throw Error("useSignalsControl must be used within a SignalsFormProvider");
     }
-    
+
     // Use React state to trigger re-renders when the store changes
     const [store, setStore] = useState<FormState>(formStore.getState());
-    
+
     useEffect(() => {
         const unsubscribe = formStore.subscribe((newState: FormState) => {
             setStore(newState);
         });
         return unsubscribe;
     }, [formStore]);
-    
+
     return {
         schema: getSchemaFromPath(store.schema, schemaKey, "."),
         value: get(store.data, schemaKey.split(".")),

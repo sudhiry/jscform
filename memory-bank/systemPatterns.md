@@ -24,10 +24,10 @@ JSCForm follows a layered architecture with clear separation of concerns:
 - **FormContext**: Provides form state and actions to child components
 - **Benefits**: Centralized state management, prop drilling avoidance
 
-### 2. Store Pattern (RxJS-based)
-- **FormStore**: Reactive state management using BehaviorSubject
+### 2. Store Pattern (Signals-based)
+- **FormStore**: Reactive state management using custom signals library
 - **State Structure**: `{schema, data, context, validator, fieldState}`
-- **Benefits**: Reactive updates, async validation support, time-travel debugging potential
+- **Benefits**: Lightweight reactive updates, async validation support, reduced bundle size, better performance
 
 ### 3. Registry Pattern
 - **Component Registry**: Global registry for UI components
@@ -63,14 +63,14 @@ Form (Entry Point)
 ```
 Schema Input → Store Creation → State Management → Component Rendering
      ↓              ↓               ↓                    ↓
-JSON Schema → FormStore → BehaviorSubject → Dynamic Components
+JSON Schema → FormStore → Custom Signals → Dynamic Components
      ↓              ↓               ↓                    ↓
 Validation → AJV Compile → Error State → Error Display
 ```
 
 ## State Management Patterns
 
-### Reactive State (RxJS)
+### Reactive State (Custom Signals)
 ```typescript
 // State structure
 interface FormState {
@@ -81,8 +81,8 @@ interface FormState {
   fieldState?: Record<string, FieldState>;
 }
 
-// Reactive updates
-const state = new BehaviorSubject<FormState>(initialState);
+// Reactive updates using custom signals
+const state = signal<FormState>(initialState);
 ```
 
 ### Immutable Updates
@@ -128,10 +128,11 @@ Schema Type → Registry Lookup → Component Selection → Props Mapping → Re
 - **Context Injection**: Custom context for component communication
 
 ### 3. Performance
-- **Selective Updates**: RxJS enables targeted re-renders
+- **Selective Updates**: Custom signals enable targeted re-renders with minimal overhead
 - **Schema Caching**: Processed schemas cached for reuse
 - **Lazy Evaluation**: Components rendered only when needed
 - **Async Validation**: Non-blocking validation processing
+- **Reduced Bundle Size**: Custom signals library significantly smaller than RxJS
 
 ### 4. Type Safety
 - **Schema Types**: JSON Schema mapped to TypeScript types

@@ -9,7 +9,7 @@ import {signal} from "../signals/signals";
 
 let cachedState: { data: any, schema: JSONSchema, context?: any, validator?: Ajv } | null = null;
 
-export const createSignalsFormStore = ({
+export const createFormStore = ({
         schema,
         context,
         data,

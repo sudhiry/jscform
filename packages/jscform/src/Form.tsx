@@ -1,6 +1,6 @@
 import React from "react";
 import {JSONSchema} from "./utils/types";
-import {SignalsFormProvider} from "./contexts/SignalsFormContext";
+import {FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
@@ -15,7 +15,7 @@ export interface FormProps {
 
 
 export function Form({schema, data, context, validator = ajv}: FormProps) {
-    return (<SignalsFormProvider data={data} schema={schema} context={context} validator={validator}>
+    return (<FormProvider data={data} schema={schema} context={context} validator={validator}>
         <DynamicUIComponent/>
-    </SignalsFormProvider>)
+    </FormProvider>)
 }

@@ -5,7 +5,7 @@
 ### Core Technologies
 - **React**: ^16.8.0 || ^17 || ^18 || ^19 (peer dependency)
 - **TypeScript**: ^5.3.3 (full type safety)
-- **RxJS**: ^7.8.1 (reactive state management)
+- **Custom Signals**: Lightweight reactive state management (replaced RxJS)
 - **AJV**: ^8.17.1 (JSON Schema validation)
 - **Lodash**: ^4.17.21 (utility functions)
 
@@ -139,7 +139,7 @@ createRegistry({
 ## Performance Considerations
 
 ### State Management
-- RxJS BehaviorSubject for efficient updates
+- Custom signals library for efficient updates (significantly smaller than RxJS)
 - Selective re-rendering through React Context
 - Async validation with debouncing
 
