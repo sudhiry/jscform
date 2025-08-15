@@ -1,11 +1,11 @@
 import {JSONSchema} from "../utils/types";
 import {AsyncSchema} from "ajv";
 import {cloneDeep, set} from "lodash";
-import retrieveSchema from "../utils/retrieveSchema";
+import {retrieveSchemaRecursive} from "../utils/retrieveSchemaRecursive";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
 import getDefaultFormState from "../utils/getDefaultFormState";
-import {signal, computed, batch} from "../signals/signals";
+import {signal, computed, batch} from "@repo/signals";
 
 export const createFormStore = ({
         schema,
@@ -69,7 +69,7 @@ export const createFormStore = ({
         try {
             const [result, newSchema] = await Promise.all([
                 validate(rootSchema, newData),
-                retrieveSchema(validator, rootSchema, rootSchema, newData, false)
+                retrieveSchemaRecursive(validator, rootSchema, rootSchema, newData)
             ]);
 
             // Use batch to update multiple signals atomically
@@ -97,14 +97,14 @@ export const createFormStore = ({
             // Step 1: Compute basic defaults from the original schema
             let currentData = await getDefaultFormState(validator, rootSchema, data, rootSchema);
             
-            // Step 2: Resolve schema with the computed defaults to handle conditional logic
-            let resolvedSchema = await retrieveSchema(validator, rootSchema, rootSchema, currentData, false);
+            // Step 2: Resolve schema recursively with the computed defaults to handle all nested conditional logic
+            let resolvedSchema = await retrieveSchemaRecursive(validator, rootSchema, rootSchema, currentData);
             
             // Step 3: Re-compute defaults on the resolved schema to get conditional defaults
             const finalData = await getDefaultFormState(validator, resolvedSchema, currentData, rootSchema);
             
-            // Step 4: Final schema resolution with the complete data
-            const finalSchema = await retrieveSchema(validator, rootSchema, rootSchema, finalData, false);
+            // Step 4: Final recursive schema resolution with the complete data to ensure all levels are resolved
+            const finalSchema = await retrieveSchemaRecursive(validator, rootSchema, rootSchema, finalData);
             
             // Validate the final data
             const validationResult = await validate(rootSchema, finalData);

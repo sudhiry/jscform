@@ -13,6 +13,7 @@ import mergeSchemas from './mergeSchemas';
 import {GenericObjectType, JSONSchema, ValidatorType,} from './types';
 import isMultiSelect from './isMultiSelect';
 import retrieveSchema, {resolveDependencies} from './retrieveSchema';
+import {retrieveSchemaRecursive} from './retrieveSchemaRecursive';
 import * as ValidatorUtil from './validatorUtils';
 import pMap from "p-map";
 import pReduce from "p-reduce";
@@ -310,7 +311,7 @@ export default async function getDefaultFormState(
     if (!isObject(theSchema)) {
         throw new Error('Invalid schema: ' + theSchema);
     }
-    const schema = await retrieveSchema(validator, theSchema, rootSchema, formData);
+    const schema = await retrieveSchemaRecursive(validator, theSchema, rootSchema || theSchema, formData || {});
     const defaults = await computeDefaults(validator, schema, {
         rootSchema,
         includeUndefinedValues,

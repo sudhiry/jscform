@@ -74,17 +74,28 @@ Validation → AJV Compile → Error State → Error Display
 
 ### Reactive State (Custom Signals)
 ```typescript
-// State structure
-interface FormState {
-  schema: JSONSchema;
-  data: any;
-  context?: any;
-  validator: Ajv;
-  fieldState?: Record<string, FieldState>;
-}
+// Granular signals architecture
+const dataSignal = signal(initialData);
+const schemaSignal = signal(initialSchema);
+const contextSignal = signal(context);
+const validatorSignal = signal(validator);
+const fieldStateSignal = signal<Record<string, any>>(initialFieldState);
 
-// Reactive updates using custom signals
-const state = signal<FormState>(initialState);
+// Computed signal for the complete form state
+const state = computed<FormState>(() => ({
+    schema: schemaSignal.value,
+    data: dataSignal.value,
+    context: contextSignal.value,
+    validator: validatorSignal.value,
+    fieldState: fieldStateSignal.value,
+}));
+
+// Batch updates for atomic state changes
+batch(() => {
+    dataSignal.value = newData;
+    schemaSignal.value = newSchema;
+    fieldStateSignal.value = newFieldState;
+});
 ```
 
 ### Immutable Updates

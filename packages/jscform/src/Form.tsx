@@ -4,7 +4,7 @@ import {FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
-import {useSignalEffect} from "./signals/react-signals";
+import {useSignalEffect} from "@repo/signals";
 
 export interface FormProps {
     schema: JSONSchema;

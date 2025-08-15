@@ -2,7 +2,7 @@ import {useContext} from "react";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
-import {useSignal, useComputed} from "../signals/react-signals";
+import {useSignal, useComputed} from "@repo/signals";
 
 export const useSchema = (schemaKey: string): JSONSchema | null => {
     const formStore = useContext(FormContext);

@@ -4,7 +4,7 @@ import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
 import {FieldState} from "../store/types";
-import {useSignal, useComputed} from "../signals/react-signals";
+import {useSignal, useComputed} from "@repo/signals";
 
 export interface UseControlApi {
     schema: JSONSchema | null;

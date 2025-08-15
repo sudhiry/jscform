@@ -2,7 +2,7 @@ import React, {memo, ReactElement, useMemo} from "react";
 import {PROPERTIES_KEY, UI_WIDGET} from "../utils/constants";
 import {globalRegistry} from "../createRegistry";
 import {useSchema} from "../hooks/useSchema";
-import {useComputed} from "../signals/react-signals";
+import {useComputed} from "@repo/signals";
 
 interface DynamicUIComponentProps {
     schemaKey?: string;

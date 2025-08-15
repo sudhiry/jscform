@@ -1,6 +1,6 @@
 import {useContext} from "react";
 import {FormContext} from "../contexts/FormContext";
-import {useSignal, useComputed} from "../signals/react-signals";
+import {useSignal, useComputed} from "@repo/signals";
 import {FormState} from "../store/types";
 
 /**

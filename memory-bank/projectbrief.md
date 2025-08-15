@@ -31,8 +31,11 @@ JSCForm is a React-based JSON Schema form builder library that dynamically gener
 - Performance suitable for complex forms
 
 ## Technical Scope
-- Core library package (`@repo/jscform`)
-- Playground application for testing and examples
-- Support for modern React (16.8+, including React 19)
-- JSON Schema validation with AJV
-- Component registry system for UI customization
+- Core library package (`@repo/jscform`) with comprehensive feature set
+- Separate signals library package (`@repo/signals`) for reactive state management
+- Playground application with extensive examples and UI library integrations
+- Support for modern React (16.8+ through React 19) with React Server Components
+- Advanced JSON Schema validation with AJV including recursive conditional logic
+- Component registry system for UI library agnostic customization
+- Comprehensive documentation and contributing guidelines
+- Production-ready architecture with performance optimizations

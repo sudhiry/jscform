@@ -3,11 +3,16 @@
 ## Technology Stack
 
 ### Core Technologies
-- **React**: ^16.8.0 || ^17 || ^18 || ^19 (peer dependency)
+- **React**: ^16.8.0 || ^17 || ^18 || ^19 (peer dependency, React 19 as main dependency)
 - **TypeScript**: ^5.3.3 (full type safety)
-- **Custom Signals**: Lightweight reactive state management (replaced RxJS)
+- **Custom Signals**: Lightweight reactive state management (replaced RxJS) - separate `@repo/signals` package
 - **AJV**: ^8.17.1 (JSON Schema validation)
+- **AJV Errors**: ^3.0.0 (enhanced error messages)
 - **Lodash**: ^4.17.21 (utility functions)
+- **JSON Schema Merge AllOf**: ^0.8.1 (schema composition)
+- **JSONPointer**: ^5.0.1 (JSON path operations)
+- **LRU Cache**: ^11.0.2 (caching utilities)
+- **P-Series**: ^3.0.0, ^4.1.0, ^7.0.2 (async utilities)
 
 ### Build & Development
 - **Turborepo**: Monorepo management and build orchestration

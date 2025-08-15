@@ -3,7 +3,7 @@ import {JSONSchema} from "../utils/types";
 import {createFormStore} from "../store/createFormStore";
 import {Ajv} from "ajv";
 import { FormStoreApi } from "../store/types";
-import {effect} from "../signals/signals";
+import {effect} from "@repo/signals";
 
 export const FormContext = createContext<FormStoreApi | undefined>(undefined);
 

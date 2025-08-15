@@ -68,8 +68,13 @@ class Signal<T = any> {
             }
         });
 
-        // Notify computed signals that depend on this
-        this.computedSignals.forEach(computed => computed.markStale());
+        // If batching, defer computed signal notifications
+        if (isBatching) {
+            batchedSignals.add(this);
+        } else {
+            // Notify computed signals that depend on this
+            this.computedSignals.forEach(computed => computed.markStale());
+        }
     }
 
     subscribe(callback: SubscriberCallback<T>): UnsubscribeFn {
@@ -141,12 +146,13 @@ class ComputedSignal<T = any> extends Signal<T> implements Computation {
     markStale(): void {
         if (!this.isStale) {
             this.isStale = true;
-            // Use microtask to batch updates and avoid infinite loops
-            queueMicrotask(() => {
-                if (this.isStale && !this.isComputing) {
-                    this.recompute();
-                }
-            });
+            // Recompute immediately to get the new value, then notify if changed
+            const oldValue = this._value;
+            this.recompute();
+            // Only notify if the value actually changed after recomputation
+            if (this._value !== oldValue) {
+                this.notify();
+            }
         }
     }
 
@@ -295,24 +301,37 @@ function effect(effectFn: EffectFn, options?: EffectOptions): Effect {
     return new Effect(effectFn, options);
 }
 
+// Global batching state
+let isBatching = false;
+let batchedSignals = new Set<Signal<any>>();
+
 /**
  * Batch multiple signal updates to avoid multiple notifications
  * @param updateFn - Function that updates signals
  */
 function batch(updateFn: () => void): void {
-    const originalCurrentComputation = currentComputation;
-    currentComputation = { addDependency: () => {} }; // Dummy computation to prevent tracking
+    if (isBatching) {
+        // Already batching, just run the function
+        updateFn();
+        return;
+    }
+
+    isBatching = true;
+    batchedSignals.clear();
 
     try {
         updateFn();
     } finally {
-        currentComputation = originalCurrentComputation;
+        isBatching = false;
+        
+        // Notify all batched signals at once
+        const signalsToNotify = Array.from(batchedSignals);
+        batchedSignals.clear();
+        
+        signalsToNotify.forEach(signal => {
+            signal.computedSignals.forEach(computed => computed.markStale());
+        });
     }
-
-    // Force all stale computeds to update
-    queueMicrotask(() => {
-        // This will trigger any pending updates
-    });
 }
 
 /**
