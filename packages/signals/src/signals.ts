@@ -8,24 +8,30 @@ type SubscriberCallback<T = any> = (value: T) => void;
 type ComputeFn<T = any> = () => T;
 type EffectFn = () => void;
 type UnsubscribeFn = () => void;
-type ErrorHandler = (error: Error) => void;
+export type ErrorHandler = (error: Error) => void;
 
 interface EffectOptions {
     immediate?: boolean;
     onError?: ErrorHandler;
 }
 
-interface Computation {
+export interface Computation {
     addDependency(signal: Signal<any>): void;
 }
 
-interface Staleable {
+export interface Staleable {
     markStale(): void;
 }
 
 // Global state for dependency tracking
-let currentComputation: Computation | null = null;
+// Exported so other modules (like async-signal) can access it.
+export let currentComputation: Computation | null = null;
 let nextSignalId = 0;
+
+// Exported a setter function to allow modification from other modules.
+export function setCurrentComputation(computation: Computation | null) {
+    currentComputation = computation;
+}
 
 // Global batching state
 let isBatching = false;
@@ -164,7 +170,7 @@ class ComputedSignal<T = any> extends Signal<T> implements Computation, Staleabl
         this.isComputing = true;
 
         const previousComputation = currentComputation;
-        currentComputation = this;
+        setCurrentComputation(this);
 
         // ensuring a clean slate for the compute function to re-track everything.
         this.clearDependencies();
@@ -182,7 +188,7 @@ class ComputedSignal<T = any> extends Signal<T> implements Computation, Staleabl
             console.error('Error recomputing computed signal:', error);
             throw error;
         } finally {
-            currentComputation = previousComputation;
+            setCurrentComputation(previousComputation);
             this.isComputing = false;
         }
     }
@@ -250,14 +256,14 @@ class Effect implements Computation, Staleable {
         this.clearDependencies();
 
         const previousComputation = currentComputation;
-        currentComputation = this;
+        setCurrentComputation(this);
 
         try {
             this.effectFn();
         } catch (error) {
             this.onError(error as Error);
         } finally {
-            currentComputation = previousComputation;
+            setCurrentComputation(previousComputation);
             this.isRunning = false;
         }
     }
@@ -312,11 +318,11 @@ export function batch(updateFn: () => void): void {
 
 export function untrack<T>(fn: () => T): T {
     const previousComputation = currentComputation;
-    currentComputation = null;
+    setCurrentComputation(null);
     try {
         return fn();
     } finally {
-        currentComputation = previousComputation;
+        setCurrentComputation(previousComputation);
     }
 }
 

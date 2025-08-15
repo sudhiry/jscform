@@ -1,71 +1,62 @@
 /**
- * Ultra-Simple Async Computed Signals
+ * Ultra-Simple Async Computed Signals (Corrected)
  * Just like regular computed, but supports async functions
  */
 
-import { Signal } from './signals';
+import { Signal, currentComputation, setCurrentComputation } from './signals';
 import type { Computation, ErrorHandler, Staleable } from './signals';
 
 // Type definitions for async signals
-type AsyncComputeFn<T = any> = (signal: AbortSignal) => Promise<T>;
+// This allows all dependencies to be tracked before any async operation begins.
+export type AsyncComputeFn<T = any> = () => Promise<T>;
 
-interface AsyncComputedOptions<T = any> {
+export interface AsyncComputedOptions<T = any> {
     initialValue?: T;
     debounce?: number;
     onError?: ErrorHandler;
 }
 
-// Extend global interface for currentComputation
-declare global {
-    var currentComputation: Computation | null;
-}
-
 /**
- * AsyncComputed - A computed signal that handles async functions
- * Returns the computed value directly, just like regular computed
+ * AsyncComputed - A computed signal that handles async functions.
  */
-class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable {
+export class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable {
     private readonly asyncComputeFn: AsyncComputeFn<T>;
     private readonly dependencies: Set<Signal<any>>;
     private isStale: boolean;
     private isComputing: boolean;
-    private abortController: AbortController | null;
-    
+    private abortController: AbortController;
+
     // Options
     private readonly debounceMs: number;
-    private debounceTimer: NodeJS.Timeout | null;
+    // FIX: Use ReturnType<typeof setTimeout> for cross-platform (browser/node) compatibility.
+    private debounceTimer: ReturnType<typeof setTimeout> | null;
     private readonly onError: ErrorHandler;
 
     constructor(asyncComputeFn: AsyncComputeFn<T>, options: AsyncComputedOptions<T> = {}) {
-        super(options.initialValue ?? null as T);
-        
+        // Use `undefined` for a more conventional "not yet loaded" initial state.
+        super(options.initialValue as T);
+
         this.asyncComputeFn = asyncComputeFn;
         this.dependencies = new Set();
         this.isStale = true;
         this.isComputing = false;
-        this.abortController = null;
-        
+        this.abortController = new AbortController();
+
         // Options
         this.debounceMs = options.debounce || 0;
         this.debounceTimer = null;
         this.onError = options.onError || ((error: Error) => console.error('AsyncComputed error:', error));
+
+        // Initial computation
+        this.recompute();
     }
 
     get value(): T {
-        // Trigger computation if needed
-        if (this.isStale && !this.isComputing) {
-            if (this.debounceMs > 0) {
-                this.scheduleComputation();
-            } else {
-                this.recompute();
-            }
+        // The value getter is now simpler. It just registers dependencies and returns the current state.
+        // The re-computation logic is handled by `markStale`.
+        if (currentComputation && currentComputation !== this) {
+            currentComputation.addDependency(this);
         }
-
-        // Register as dependency for other computations
-        if (globalThis.currentComputation && globalThis.currentComputation !== this) {
-            globalThis.currentComputation.addDependency(this);
-        }
-
         return this._value;
     }
 
@@ -76,13 +67,13 @@ class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable
     addDependency(signal: Signal<any>): void {
         if (!this.dependencies.has(signal)) {
             this.dependencies.add(signal);
-            signal.computedSignals.add(this);
+            signal.dependents.add(this);
         }
     }
 
     clearDependencies(): void {
         this.dependencies.forEach(dep => {
-            dep.computedSignals.delete(this);
+            dep.dependents.delete(this);
         });
         this.dependencies.clear();
     }
@@ -90,21 +81,9 @@ class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable
     markStale(): void {
         if (!this.isStale) {
             this.isStale = true;
-            
-            // Cancel ongoing computation
-            if (this.abortController) {
-                this.abortController.abort();
-            }
-            
-            queueMicrotask(() => {
-                if (this.isStale && !this.isComputing) {
-                    if (this.debounceMs > 0) {
-                        this.scheduleComputation();
-                    } else {
-                        this.recompute();
-                    }
-                }
-            });
+            // Schedule a re-computation. This is an "eager" approach, unlike the lazy
+            // synchronous computed signal.
+            this.scheduleComputation();
         }
     }
 
@@ -112,62 +91,67 @@ class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
-        
-        this.debounceTimer = setTimeout(() => {
-            this.recompute();
-        }, this.debounceMs);
+
+        if (this.debounceMs > 0) {
+            this.debounceTimer = setTimeout(() => {
+                this.recompute();
+            }, this.debounceMs);
+        } else {
+            // Use a microtask to batch synchronous updates within the same event loop tick.
+            queueMicrotask(() => this.recompute());
+        }
     }
 
     private async recompute(): Promise<void> {
-        if (this.isComputing) return;
+        // If a computation is already running for this signal, abort the old one and start over.
+        if (this.isComputing) {
+            this.abortController.abort();
+            this.abortController = new AbortController();
+        }
+
+        if (!this.isStale) return;
 
         this.isComputing = true;
         this.isStale = false;
+        const localAbortSignal = this.abortController.signal;
 
-        // Cancel previous computation
-        if (this.abortController) {
-            this.abortController.abort();
-        }
-        this.abortController = new AbortController();
-
-        // Clear old dependencies
+        // FIX: The core logic change is here. We run the user's function synchronously
+        // to track all dependencies, then we await the promise it returns.
+        const previousComputation = currentComputation;
+        setCurrentComputation(this);
         this.clearDependencies();
 
-        // Set up dependency tracking
-        const previousComputation = globalThis.currentComputation;
-        globalThis.currentComputation = this;
-
         try {
-            // Run async computation
-            const result = await this.asyncComputeFn(this.abortController.signal);
+            const promise = this.asyncComputeFn(); // This tracks dependencies
+            setCurrentComputation(previousComputation); // Restore context immediately
 
-            // Check if computation was aborted
-            if (this.abortController.signal.aborted) {
+            const result = await promise;
+
+            // If this computation was aborted while it was running, do not update the value.
+            if (localAbortSignal.aborted) {
                 return;
             }
 
-            // Update value if it changed
             if (this._value !== result) {
                 this._value = result;
                 this.notify();
             }
 
         } catch (error) {
-            if (!this.abortController.signal.aborted) {
+            setCurrentComputation(previousComputation); // Ensure context is restored on error
+            if (!localAbortSignal.aborted) {
                 this.onError(error as Error);
-                // Optionally, you could set the value to null or keep the previous value
-                // this._value = null;
             }
         } finally {
-            globalThis.currentComputation = previousComputation;
-            this.isComputing = false;
+            // Only mark as not computing if this specific run wasn't aborted.
+            if (!localAbortSignal.aborted) {
+                this.isComputing = false;
+            }
         }
     }
 
     dispose(): void {
-        if (this.abortController) {
-            this.abortController.abort();
-        }
+        this.abortController.abort();
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
@@ -176,28 +160,13 @@ class AsyncComputed<T = any> extends Signal<T> implements Computation, Staleable
     }
 }
 
-// Add currentComputation to global if not exists
-if (!globalThis.currentComputation) {
-    globalThis.currentComputation = null;
-}
 
 /**
  * Create an async computed signal
- * @param asyncComputeFn - Async function to compute the value
+ * @param asyncComputeFn - A synchronous function that returns a Promise. All signals accessed within this function will be tracked as dependencies.
  * @param options - Options: { debounce, initialValue, onError }
- * @returns Async computed signal
+ * @returns An async computed signal
  */
-function asyncComputed<T>(asyncComputeFn: AsyncComputeFn<T>, options: AsyncComputedOptions<T> = {}): AsyncComputed<T> {
+export function asyncComputed<T>(asyncComputeFn: AsyncComputeFn<T>, options: AsyncComputedOptions<T> = {}): AsyncComputed<T> {
     return new AsyncComputed(asyncComputeFn, options);
 }
-
-export {
-    AsyncComputed,
-    asyncComputed
-};
-
-// Export types for external use
-export type {
-    AsyncComputeFn,
-    AsyncComputedOptions
-};
