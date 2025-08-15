@@ -62,6 +62,3 @@ export function FormProvider({
     
     return <FormContext.Provider value={formStoreApi}>{children}</FormContext.Provider>;
 }
-
-// Legacy alias for backward compatibility
-export const SignalsFormProvider = FormProvider;

@@ -9,6 +9,7 @@ export * from "./signals/signals";
 export * from "./signals/react-signals";
 export * from "./signals/async-signals";
 export { ajv } from "./defaultAjv";
+export { default as getDefaultFormState } from "./utils/getDefaultFormState";
 
 // Re-export key hooks for convenience
 export { useControl } from "./hooks/useControl";

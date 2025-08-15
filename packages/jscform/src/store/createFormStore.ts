@@ -14,14 +14,19 @@ export const createFormStore = ({
         validator
     }: FormStoreInput): FormStoreApi => {
 
-    // Core state signals
-    const dataSignal = signal(data);
-    const schemaSignal = signal(schema);
+    const rootSchema = cloneDeep(schema);
+    
+    // Initialize data with defaults computed synchronously if possible
+    let initialData = data;
+    let initialSchema = schema;
+    let initialFieldState: Record<string, any> = {};
+
+    // Core state signals - will be initialized after computing defaults
+    const dataSignal = signal(initialData);
+    const schemaSignal = signal(initialSchema);
     const contextSignal = signal(context);
     const validatorSignal = signal(validator);
-    const fieldStateSignal = signal<Record<string, any>>({});
-
-    const rootSchema = cloneDeep(schema);
+    const fieldStateSignal = signal<Record<string, any>>(initialFieldState);
 
     // Computed signal for the complete form state
     const state = computed<FormState>(() => ({
@@ -86,15 +91,44 @@ export const createFormStore = ({
         }
     };
 
-    // Initialize with default values
-    (async () => {
+    // Initialize with default values asynchronously but update signals immediately when ready
+    const initializeDefaults = async () => {
         try {
-            const defaultValue = await getDefaultFormState(validator, rootSchema, data, rootSchema);
-            setState("", defaultValue);
+            // Step 1: Compute basic defaults from the original schema
+            let currentData = await getDefaultFormState(validator, rootSchema, data, rootSchema);
+            
+            // Step 2: Resolve schema with the computed defaults to handle conditional logic
+            let resolvedSchema = await retrieveSchema(validator, rootSchema, rootSchema, currentData, false);
+            
+            // Step 3: Re-compute defaults on the resolved schema to get conditional defaults
+            const finalData = await getDefaultFormState(validator, resolvedSchema, currentData, rootSchema);
+            
+            // Step 4: Final schema resolution with the complete data
+            const finalSchema = await retrieveSchema(validator, rootSchema, rootSchema, finalData, false);
+            
+            // Validate the final data
+            const validationResult = await validate(rootSchema, finalData);
+            
+            // Update all signals with computed defaults
+            batch(() => {
+                dataSignal.value = finalData;
+                schemaSignal.value = finalSchema;
+                if (validationResult.errors) {
+                    fieldStateSignal.value = Object.keys(validationResult.errors).reduce((acc, key) => ({
+                        ...acc,
+                        [key]: {error: validationResult.errors[key]}
+                    }), {});
+                } else {
+                    fieldStateSignal.value = {};
+                }
+            });
         } catch (e) {
-            console.error("Form default state update error", e);
+            console.error("Form default state initialization error", e);
         }
-    })();
+    };
+
+    // Start initialization immediately
+    initializeDefaults();
 
     return {
         state,

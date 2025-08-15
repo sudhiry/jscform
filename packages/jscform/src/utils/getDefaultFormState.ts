@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import {ANY_OF_KEY, DEFAULT_KEY, DEPENDENCIES_KEY, ONE_OF_KEY, PROPERTIES_KEY,} from './constants';
+import {ANY_OF_KEY, DEFAULT_KEY, DEPENDENCIES_KEY, IF_KEY, ONE_OF_KEY, PROPERTIES_KEY,} from './constants';
 import getClosestMatchingOption from './getClosestMatchingOption';
 import getDiscriminatorFieldFromSchema from './getDiscriminatorFieldFromSchema';
 import getSchemaType from './getSchemaType';
@@ -13,6 +13,7 @@ import mergeSchemas from './mergeSchemas';
 import {GenericObjectType, JSONSchema, ValidatorType,} from './types';
 import isMultiSelect from './isMultiSelect';
 import retrieveSchema, {resolveDependencies} from './retrieveSchema';
+import * as ValidatorUtil from './validatorUtils';
 import pMap from "p-map";
 import pReduce from "p-reduce";
 import pEachSeries from "p-each-series";
@@ -135,6 +136,34 @@ export async function computeDefaults(
         const discriminator = getDiscriminatorFieldFromSchema(schema);
         schemaToCompute = anyOf![await getClosestMatchingOption(validator, rootSchema, isEmpty(formData) ? undefined : formData, anyOf as JSONSchema[], 0, discriminator)] as JSONSchema;
         schemaToCompute = mergeSchemas(remaining as JSONSchema, schemaToCompute) as JSONSchema;
+    } else if (IF_KEY in schema) {
+        // Handle conditional schemas (if/then/else)
+        const {if: condition, then, else: otherwise, ...remaining} = schema;
+        
+        // First, compute defaults for the base schema (without conditional parts)
+        const baseDefaults = await computeDefaults(validator, remaining as JSONSchema, {
+            rootSchema,
+            includeUndefinedValues,
+            parentDefaults,
+            rawFormData: formData as GenericObjectType,
+            required,
+        });
+        
+        // Merge base defaults with current form data to evaluate condition
+        const dataForCondition = mergeDefaultsWithFormData(baseDefaults as GenericObjectType, formData as GenericObjectType);
+        
+        // Check condition using ValidatorUtil
+        const conditionMet = await ValidatorUtil.isValid(validator, condition as JSONSchema, dataForCondition, rootSchema);
+        
+        // Choose the appropriate conditional schema
+        const conditionalSchema = conditionMet ? then : otherwise;
+        if (conditionalSchema && typeof conditionalSchema !== 'boolean') {
+            // Merge the base schema with the conditional schema
+            schemaToCompute = mergeSchemas(remaining as JSONSchema, conditionalSchema as JSONSchema) as JSONSchema;
+        } else {
+            // No conditional schema applies, return base defaults
+            return baseDefaults;
+        }
     }
 
     if (schemaToCompute) {

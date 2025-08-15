@@ -35,36 +35,33 @@
         "required": "Last Name is required"
       }
     },
-    "isSelf": {
-      "title": "Is Self",
-      "type": "boolean",
+    "otherPerson": {
+      "type": "object",
       "ui:widget": {
-        "widget": "Checkbox"
+        "widget": "Col3Layout"
       },
-      "default": true
-    }
-  },
-  "required": [
-    "firstName",
-    "lastName"
-  ],
-  "if": {
-    "properties": {
-      "isSelf": {
-        "const": true
-      }
-    },
-    "required": [
-      "isSelf"
-    ]
-  },
-  "then": {
-    "properties": {
-      "otherPerson": {
-        "type": "object",
-        "ui:widget": {
-          "widget": "Col3Layout"
+      "properties": {
+        "isSelf": {
+          "title": "Add other person",
+          "type": "boolean",
+          "ui:widget": {
+            "widget": "Checkbox",
+            "className": "grid grid-cols-1"
+          },
+          "default": true
+        }
+      },
+      "if": {
+        "properties": {
+          "isSelf": {
+            "const": true
+          }
         },
+        "required": [
+          "isSelf"
+        ]
+      },
+      "then": {
         "properties": {
           "otherFirstName": {
             "title": "Other First Name",
@@ -95,9 +92,10 @@
           "otherLastName"
         ]
       }
-    },
-    "required": [
-      "otherPerson"
-    ]
-  }
+    }
+  },
+  "required": [
+    "firstName",
+    "lastName"
+  ]
 }

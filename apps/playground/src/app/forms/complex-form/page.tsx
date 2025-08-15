@@ -21,8 +21,8 @@ createRegistry({
     Section: ({ schema, children }: { schema: any; children: React.ReactNode }) => (
         <Card className="mb-4">
             <CardHeader>
-                <CardTitle>{schema.title}</CardTitle>
-                {schema.description && (
+                <CardTitle>{schema?.title}</CardTitle>
+                {schema?.description && (
                     <CardDescription>{schema.description}</CardDescription>
                 )}
             </CardHeader>
