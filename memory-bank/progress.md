@@ -4,7 +4,7 @@
 
 ### Core Infrastructure
 - **✅ Signals Migration Complete**: Successfully migrated from RxJS to custom signals library
-- **✅ Custom Signals Library**: Implemented comprehensive signals library as separate `@repo/signals` package with signal, computed, effect, and batch operations
+- **✅ Custom Signals Library**: Implemented comprehensive signals library as separate `@preact/signals-react` package with signal, computed, effect, and batch operations
 - **✅ Form Store**: Updated `createFormStore.ts` to use signals for reactive state management with granular signal architecture
 - **✅ API Compatibility**: All existing hooks and components work with new signals-based store
 - **✅ Bundle Size Optimization**: Removed RxJS dependency, significantly reducing bundle size

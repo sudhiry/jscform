@@ -5,7 +5,7 @@
 
 ## Recent Changes
 - **✅ Completed RxJS to Signals Migration**: Fully migrated from BehaviorSubject to custom signals implementation
-- **✅ Custom Signals Library**: Implemented comprehensive signals library as separate `@repo/signals` package with signal, computed, effect, and batch operations
+- **✅ Custom Signals Library**: Implemented comprehensive signals library as separate `@preact/signals-react` package with signal, computed, effect, and batch operations
 - **✅ Updated Form Store**: `createFormStore.ts` now uses signals for reactive state management with granular signal architecture
 - **✅ Maintained API Compatibility**: All existing hooks and components work with new signals-based store
 - **✅ Removed RxJS Dependency**: Successfully eliminated `rxjs` from package.json dependencies
@@ -18,7 +18,7 @@
 - **✅ Enhanced Navigation**: Updated forms navigation page with improved UI and status indicators for available examples
 - **✅ Recursive Schema Resolution**: Implemented `retrieveSchemaRecursive` utility for handling nested conditional logic at all schema levels
 - **✅ React 19 Support**: Updated to support React 19 with proper peer dependencies
-- **✅ Monorepo Architecture**: Established clean separation with `@repo/signals` as dedicated package
+- **✅ Monorepo Architecture**: Established clean separation with `@preact/signals-react` as dedicated package
 
 ## Next Steps
 1. ✅ **Documentation Enhancement**: Create comprehensive README with getting started guide, API documentation, and signals usage examples
@@ -32,7 +32,7 @@
 ## Active Decisions and Considerations
 
 ### Architecture Insights
-- **Signals-based State Management**: The project uses a custom signals library for reactive form state, which is lightweight and performant with minimal learning curve
+- **Signals-based State Management**: The project uses `@preact/signals-react` for reactive form state, which is lightweight and performant with minimal learning curve
 - **Component Registry Pattern**: Global registry system allows UI library flexibility but requires careful initialization
 - **Schema-driven Approach**: Core value proposition relies heavily on JSON Schema standards compliance
 
@@ -50,13 +50,13 @@
 
 ### Code Organization
 - Clear separation between core library (`packages/jscform`) and examples (`apps/playground`)
-- Dedicated signals package (`packages/signals`) for reactive state management
+- Dedicated signals package (`packages/signals`) for reactive state management, now using `@preact/signals-react`. **Note: The `packages/signals` directory is deprecated and should not be used or modified.**
 - Utility functions organized by functionality in `utils/` directory with comprehensive test coverage setup
 - React patterns follow modern best practices (hooks, context, functional components)
 - Monorepo structure with shared configs for ESLint, TypeScript, and Jest
 
 ### State Management Philosophy
-- Reactive state updates using custom signals library with granular signal architecture
+- Reactive state updates using `@preact/signals-react` with granular signal architecture
 - Individual signals for data, schema, context, validator, and fieldState
 - Computed signals for derived state with automatic dependency tracking
 - Batch updates for atomic state changes to prevent cascading re-renders

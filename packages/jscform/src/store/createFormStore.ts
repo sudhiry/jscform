@@ -5,7 +5,6 @@ import {retrieveSchemaRecursive} from "../utils/retrieveSchemaRecursive";
 import {parseAjvErrors} from "../utils/errorResolver/parseAjvErrors";
 import {FormState, FormStoreApi, FormStoreInput, StoreListener} from "./types";
 import getDefaultFormState from "../utils/getDefaultFormState";
-import {signal, computed, batch} from "@repo/signals";
 
 export const createFormStore = ({
         schema,
@@ -15,7 +14,7 @@ export const createFormStore = ({
     }: FormStoreInput): FormStoreApi => {
 
     const rootSchema = cloneDeep(schema);
-    
+
     // Initialize data with defaults computed synchronously if possible
     let initialData = data;
     let initialSchema = schema;
@@ -65,7 +64,7 @@ export const createFormStore = ({
     const setState = async (key: string, value: any) => {
         const currentData = dataSignal.value;
         const newData = set(cloneDeep(currentData), key, value);
-        
+
         try {
             const [result, newSchema] = await Promise.all([
                 validate(rootSchema, newData),
@@ -96,19 +95,19 @@ export const createFormStore = ({
         try {
             // Step 1: Compute basic defaults from the original schema
             let currentData = await getDefaultFormState(validator, rootSchema, data, rootSchema);
-            
+
             // Step 2: Resolve schema recursively with the computed defaults to handle all nested conditional logic
             let resolvedSchema = await retrieveSchemaRecursive(validator, rootSchema, rootSchema, currentData);
-            
+
             // Step 3: Re-compute defaults on the resolved schema to get conditional defaults
             const finalData = await getDefaultFormState(validator, resolvedSchema, currentData, rootSchema);
-            
+
             // Step 4: Final recursive schema resolution with the complete data to ensure all levels are resolved
             const finalSchema = await retrieveSchemaRecursive(validator, rootSchema, rootSchema, finalData);
-            
+
             // Validate the final data
             const validationResult = await validate(rootSchema, finalData);
-            
+
             // Update all signals with computed defaults
             batch(() => {
                 dataSignal.value = finalData;

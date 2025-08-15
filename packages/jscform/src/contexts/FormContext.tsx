@@ -3,7 +3,6 @@ import {JSONSchema} from "../utils/types";
 import {createFormStore} from "../store/createFormStore";
 import {Ajv} from "ajv";
 import { FormStoreApi } from "../store/types";
-import {effect} from "@repo/signals";
 
 export const FormContext = createContext<FormStoreApi | undefined>(undefined);
 
@@ -18,19 +17,19 @@ export interface FormProviderProps {
 }
 
 export function FormProvider({
-    schema, 
-    data, 
-    context, 
-    validator, 
+    schema,
+    data,
+    context,
+    validator,
     children,
     onStateChange,
     enableDevTools = false
 }: FormProviderProps) {
     const formStoreApi = useRef(createFormStore({schema, data, context, validator})).current;
-    
+
     useEffect(() => {
         const effects: any[] = [];
-        
+
         // Optional state change callback effect
         if (onStateChange) {
             const stateChangeEffect = effect(() => {
@@ -39,7 +38,7 @@ export function FormProvider({
             });
             effects.push(stateChangeEffect);
         }
-        
+
         // Optional dev tools integration
         if (enableDevTools && typeof window !== 'undefined') {
             const devToolsEffect = effect(() => {
@@ -53,12 +52,12 @@ export function FormProvider({
             });
             effects.push(devToolsEffect);
         }
-        
+
         // Cleanup effects on unmount
         return () => {
             effects.forEach(effect => effect?.dispose?.());
         };
     }, [formStoreApi, onStateChange, enableDevTools]);
-    
+
     return <FormContext.Provider value={formStoreApi}>{children}</FormContext.Provider>;
 }

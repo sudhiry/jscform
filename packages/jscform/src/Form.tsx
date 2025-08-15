@@ -4,7 +4,7 @@ import {FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
-import {useSignalEffect} from "@repo/signals";
+import {useSignalEffect} from "@preact/signals-react";
 
 export interface FormProps {
     schema: JSONSchema;
@@ -20,17 +20,17 @@ export interface FormProps {
  * Enhanced Form component that leverages signals features for optimal performance
  */
 export function Form({
-    schema, 
-    data, 
-    context, 
-    validator = ajv, 
+    schema,
+    data,
+    context,
+    validator = ajv,
     onSubmit,
     onChange,
     onValidationChange
 }: FormProps) {
     return (
         <FormProvider data={data} schema={schema} context={context} validator={validator}>
-            <FormContent 
+            <FormContent
                 onSubmit={onSubmit}
                 onChange={onChange}
                 onValidationChange={onValidationChange}

@@ -25,7 +25,7 @@ JSCForm follows a layered architecture with clear separation of concerns:
 - **Benefits**: Centralized state management, prop drilling avoidance
 
 ### 2. Store Pattern (Signals-based)
-- **FormStore**: Reactive state management using custom signals library with granular signals
+- **FormStore**: Reactive state management using `@preact/signals-react` with granular signals
 - **Granular Signals**: Individual signals for data, schema, context, validator, and fieldState
 - **Computed State**: Main form state derived from individual signals using computed()
 - **Batch Updates**: Atomic updates using batch() to prevent cascading re-renders
@@ -141,11 +141,11 @@ Schema Type → Registry Lookup → Component Selection → Props Mapping → Re
 - **Context Injection**: Custom context for component communication
 
 ### 3. Performance
-- **Selective Updates**: Custom signals enable targeted re-renders with minimal overhead
+- **Selective Updates**: `@preact/signals-react` enable targeted re-renders with minimal overhead
 - **Schema Caching**: Processed schemas cached for reuse
 - **Lazy Evaluation**: Components rendered only when needed
 - **Async Validation**: Non-blocking validation processing
-- **Reduced Bundle Size**: Custom signals library significantly smaller than RxJS
+- **Reduced Bundle Size**: `@preact/signals-react` is significantly smaller than RxJS
 
 ### 4. Type Safety
 - **Schema Types**: JSON Schema mapped to TypeScript types

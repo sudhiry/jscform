@@ -57,7 +57,7 @@ JSCForm solves these problems by providing a schema-driven approach to form gene
 ## Competitive Advantages
 - **React-First**: Built specifically for React ecosystem with React 19 support
 - **Modern Architecture**: Uses latest React patterns (hooks, context, Server Components)
-- **Custom Signals**: Lightweight reactive state management (90% smaller than RxJS alternatives)
+- **@preact/signals-react**: Lightweight reactive state management (90% smaller than RxJS alternatives)
 - **TypeScript Native**: First-class TypeScript support with comprehensive type safety
 - **Extensible**: Component registry system for UI library agnostic customization
 - **Performance Optimized**: Minimal bundle size with intelligent caching and selective re-renders

@@ -4,7 +4,7 @@ import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
 import {FieldState} from "../store/types";
-import {useSignal, useComputed} from "@repo/signals";
+import {useComputed, useSignal} from "@preact/signals-react";
 
 export interface UseControlApi {
     schema: JSONSchema | null;
@@ -25,24 +25,24 @@ export const useControl = (schemaKey: string): UseControlApi => {
     const store = useSignal(formStore.state);
 
     // Use computed values for derived state to optimize re-renders
-    const schema = useComputed(() => 
-        getSchemaFromPath(store.schema, schemaKey, "."), 
+    const schema = useComputed(() =>
+        getSchemaFromPath(store.schema, schemaKey, "."),
         [store.schema, schemaKey]
     );
 
-    const value = useComputed(() => 
-        get(store.data, schemaKey.split(".")), 
+    const value = useComputed(() =>
+        get(store.data, schemaKey.split(".")),
         [store.data, schemaKey]
     );
 
-    const fieldState = useComputed(() => 
-        get(store.fieldState, schemaKey), 
+    const fieldState = useComputed(() =>
+        get(store.fieldState, schemaKey),
         [store.fieldState, schemaKey]
     );
 
     // Memoize onChange handler to prevent unnecessary re-renders
-    const onChange = useMemo(() => 
-        (val: any) => formStore.setState(schemaKey, val), 
+    const onChange = useMemo(() =>
+        (val: any) => formStore.setState(schemaKey, val),
         [formStore, schemaKey]
     );
 

@@ -5,7 +5,7 @@
 ### Core Technologies
 - **React**: ^16.8.0 || ^17 || ^18 || ^19 (peer dependency, React 19 as main dependency)
 - **TypeScript**: ^5.3.3 (full type safety)
-- **Custom Signals**: Lightweight reactive state management (replaced RxJS) - separate `@repo/signals` package
+- **@preact/signals-react**: Lightweight reactive state management
 - **AJV**: ^8.17.1 (JSON Schema validation)
 - **AJV Errors**: ^3.0.0 (enhanced error messages)
 - **Lodash**: ^4.17.21 (utility functions)
@@ -37,6 +37,7 @@ jscform/
 │   ├── config-eslint/     # Shared ESLint configs
 │   ├── config-typescript/ # Shared TypeScript configs
 │   └── jest-presets/      # Shared Jest configurations
+│   └── signals/           # DEPRECATED: Signal-based utilities. Do not use.
 ├── apps/
 │   └── playground/        # Development and testing app
 └── turbo.json            # Turborepo configuration
@@ -53,8 +54,7 @@ packages/jscform/src/
 ├── contexts/             # React contexts
 ├── hooks/                # Custom React hooks
 ├── store/                # State management
-├── utils/                # Utility functions
-└── signals/              # Signal-based utilities
+└── utils/                # Utility functions
 ```
 
 ## Build Configuration
@@ -144,7 +144,7 @@ createRegistry({
 ## Performance Considerations
 
 ### State Management
-- Custom signals library for efficient updates (significantly smaller than RxJS)
+- **@preact/signals-react** for efficient updates
 - Selective re-rendering through React Context
 - Async validation with debouncing
 

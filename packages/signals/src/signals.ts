@@ -162,6 +162,8 @@ class ComputedSignal<T = any> extends Signal<T> implements Computation, Staleabl
             this.isStale = true;
             // Propagate stale notification to its own dependents
             this.dependents.forEach(dep => dep.markStale());
+            // Notify direct subscribers that the value is now stale and needs re-reading
+            // this.recompute();
         }
     }
 

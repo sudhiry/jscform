@@ -7,8 +7,8 @@ import {
     isSignal, Signal,
 } from '../signals'; // Adjust path as needed
 
-// Helper to flush the microtask queue for effect tests
-const flushPromises = () => new Promise(resolve => setImmediate(resolve));
+// A robust helper to flush all pending promises and timers
+const flushPromises = () => new Promise(jest.requireActual('timers').setImmediate);
 
 describe('Signals Core Library', () => {
     let consoleErrorSpy: jest.SpyInstance<void, [message?: any, ...optionalParams: any[]], any>;
