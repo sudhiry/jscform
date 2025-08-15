@@ -160,21 +160,20 @@ class ComputedSignal<T = any> extends Signal<T> implements Computation, Staleabl
     }
 
     private recompute(): void {
-        this.isComputing = true;
         const oldValue = this._value;
-
-        this.clearDependencies();
+        this.isComputing = true;
 
         const previousComputation = currentComputation;
         currentComputation = this;
+
+        // ensuring a clean slate for the compute function to re-track everything.
+        this.clearDependencies();
 
         try {
             const newValue = this.computeFn();
 
             this.isStale = false;
 
-            // *** FIX: This simplified logic correctly handles both the initial computation
-            // and subsequent updates. The `isInitialized` flag was removed.
             if (oldValue !== newValue) {
                 this._value = newValue;
                 this.notify();
@@ -206,6 +205,7 @@ class Effect implements Computation, Staleable {
     private readonly dependencies: Set<Signal<any>>;
     private isRunning: boolean;
     private isDisposed: boolean;
+    private isStale: boolean; // Add isStale flag
     private readonly onError: ErrorHandler;
 
     constructor(effectFn: EffectFn, options: EffectOptions = {}) {
@@ -213,9 +213,9 @@ class Effect implements Computation, Staleable {
         this.dependencies = new Set();
         this.isRunning = false;
         this.isDisposed = false;
+        this.isStale = false; // Initialize isStale
         this.onError = options.onError || ((error: Error) => console.error('Effect error:', error));
 
-        // Run immediately by default
         if (options.immediate !== false) {
             this.run();
         }
@@ -236,8 +236,8 @@ class Effect implements Computation, Staleable {
     }
 
     markStale(): void {
-        if (!this.isDisposed) {
-            // Use a microtask to schedule the run. This batches updates and prevents glitches.
+        if (!this.isDisposed && !this.isStale) {
+            this.isStale = true;
             queueMicrotask(() => this.run());
         }
     }
@@ -246,6 +246,7 @@ class Effect implements Computation, Staleable {
         if (this.isRunning || this.isDisposed) return;
 
         this.isRunning = true;
+        this.isStale = false; // Reset stale flag before running
         this.clearDependencies();
 
         const previousComputation = currentComputation;
