@@ -1,0 +1,185 @@
+{
+  "$async": true,
+  "type": "object",
+  "title": "User Registration Form",
+  "description": "A comprehensive form demonstrating advanced JSCForm features",
+  "ui:widget": {
+    "widget": "Col1Layout"
+  },
+  "properties": {
+    "personalInfo": {
+      "type": "object",
+      "title": "Personal Information",
+      "description": "Basic personal details",
+      "ui:widget": {
+        "widget": "Section"
+      },
+      "properties": {
+        "firstName": {
+          "title": "First Name",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50,
+          "ui:widget": {
+            "widget": "Input"
+          },
+          "errorMessage": {
+            "required": "First name is required",
+            "minLength": "First name must be at least 2 characters",
+            "maxLength": "First name cannot exceed 50 characters"
+          }
+        },
+        "lastName": {
+          "title": "Last Name",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50,
+          "ui:widget": {
+            "widget": "Input"
+          },
+          "errorMessage": {
+            "required": "Last name is required",
+            "minLength": "Last name must be at least 2 characters",
+            "maxLength": "Last name cannot exceed 50 characters"
+          }
+        },
+        "email": {
+          "title": "Email Address",
+          "type": "string",
+          "format": "email",
+          "ui:widget": {
+            "widget": "Input"
+          },
+          "errorMessage": {
+            "required": "Email address is required",
+            "format": "Please enter a valid email address"
+          }
+        },
+        "phone": {
+          "title": "Phone Number",
+          "type": "string",
+          "pattern": "^[+]?[1-9]?[0-9]{7,15}$",
+          "ui:widget": {
+            "widget": "Input"
+          },
+          "errorMessage": {
+            "pattern": "Please enter a valid phone number"
+          }
+        }
+      },
+      "required": ["firstName", "lastName", "email"]
+    },
+    "hasEmployment": {
+      "title": "Are you currently employed?",
+      "type": "boolean",
+      "ui:widget": {
+        "widget": "Checkbox"
+      },
+      "default": false
+    },
+    "preferences": {
+      "type": "object",
+      "title": "Communication Preferences",
+      "description": "How would you like us to contact you?",
+      "ui:widget": {
+        "widget": "Section"
+      },
+      "properties": {
+        "newsletter": {
+          "title": "Subscribe to newsletter",
+          "type": "boolean",
+          "ui:widget": {
+            "widget": "Checkbox"
+          },
+          "default": true
+        },
+        "notifications": {
+          "title": "Receive push notifications",
+          "type": "boolean",
+          "ui:widget": {
+            "widget": "Checkbox"
+          },
+          "default": false
+        },
+        "marketing": {
+          "title": "Receive marketing emails",
+          "type": "boolean",
+          "ui:widget": {
+            "widget": "Checkbox"
+          },
+          "default": false
+        }
+      }
+    }
+  },
+  "required": ["personalInfo", "hasEmployment", "preferences"],
+  "if": {
+    "properties": {
+      "hasEmployment": {
+        "const": true
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "employmentInfo": {
+        "type": "object",
+        "title": "Employment Information",
+        "description": "Tell us about your current job",
+        "ui:widget": {
+          "widget": "Section"
+        },
+        "properties": {
+          "company": {
+            "title": "Company Name",
+            "type": "string",
+            "minLength": 2,
+            "ui:widget": {
+              "widget": "Input"
+            },
+            "errorMessage": {
+              "required": "Company name is required",
+              "minLength": "Company name must be at least 2 characters"
+            }
+          },
+          "position": {
+            "title": "Job Title",
+            "type": "string",
+            "minLength": 2,
+            "ui:widget": {
+              "widget": "Input"
+            },
+            "errorMessage": {
+              "required": "Job title is required",
+              "minLength": "Job title must be at least 2 characters"
+            }
+          },
+          "experience": {
+            "title": "Years of Experience",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50,
+            "ui:widget": {
+              "widget": "Input"
+            },
+            "errorMessage": {
+              "required": "Experience is required",
+              "minimum": "Experience cannot be negative",
+              "maximum": "Experience cannot exceed 50 years"
+            }
+          },
+          "remote": {
+            "title": "Work remotely",
+            "type": "boolean",
+            "ui:widget": {
+              "widget": "Checkbox"
+            },
+            "default": false
+          }
+        },
+        "required": ["company", "position", "experience"]
+      }
+    },
+    "required": ["employmentInfo"]
+  }
+}
