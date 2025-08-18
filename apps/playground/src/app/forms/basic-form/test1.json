@@ -1,0 +1,101 @@
+{
+  "$async": true,
+  "type": "object",
+  "ui:widget": {
+    "widget": "Col3Layout"
+  },
+  "properties": {
+    "firstName": {
+      "title": "First Name",
+      "type": "string",
+      "minLength": 3,
+      "ui:widget": {
+        "widget": "Input"
+      },
+      "errorMessage": {
+        "required": "First Name is required",
+        "minLength": "First Name should have atleast 3 characters"
+      },
+      "default": "David"
+    },
+    "middleName": {
+      "title": "Middle Name",
+      "type": "string",
+      "ui:widget": {
+        "widget": "Input"
+      }
+    },
+    "lastName": {
+      "title": "Last Name",
+      "type": "string",
+      "ui:widget": {
+        "widget": "Input"
+      },
+      "errorMessage": {
+        "required": "Last Name is required"
+      }
+    },
+    "otherPerson": {
+      "type": "object",
+      "ui:widget": {
+        "widget": "Col3Layout"
+      },
+      "properties": {
+        "isSelf": {
+          "title": "Add other person",
+          "type": "boolean",
+          "ui:widget": {
+            "widget": "Checkbox",
+            "className": "grid grid-cols-1"
+          },
+          "default": true
+        }
+      },
+      "if": {
+        "properties": {
+          "isSelf": {
+            "const": true
+          }
+        },
+        "required": [
+          "isSelf"
+        ]
+      },
+      "then": {
+        "properties": {
+          "otherFirstName": {
+            "title": "Other First Name",
+            "type": "string",
+            "ui:widget": {
+              "widget": "Input"
+            },
+            "default": "John"
+          },
+          "otherMiddleName": {
+            "title": "Other Middle Name",
+            "type": "string",
+            "ui:widget": {
+              "widget": "Input"
+            }
+          },
+          "otherLastName": {
+            "title": "Other Last Name",
+            "type": "string",
+            "ui:widget": {
+              "widget": "Input"
+            }
+          }
+        },
+        "required": [
+          "otherFirstName",
+          "otherMiddleName",
+          "otherLastName"
+        ]
+      }
+    }
+  },
+  "required": [
+    "firstName",
+    "lastName"
+  ]
+}

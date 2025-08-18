@@ -13,7 +13,6 @@ export interface FormProviderProps {
     context?: any;
     validator: Ajv;
     children: React.ReactNode;
-    onStateChange?: (state: any) => void;
     enableDevTools?: boolean;
 }
 
@@ -23,22 +22,12 @@ export function FormProvider({
     context,
     validator,
     children,
-    onStateChange,
-    enableDevTools = false
+    enableDevTools = true
 }: FormProviderProps) {
     const formStoreApi = useRef(createFormStore({schema, data, context, validator})).current;
 
     useEffect(() => {
         const effects: any[] = [];
-
-        // Optional state change callback effect
-        if (onStateChange) {
-            const stateChangeEffect = effect(() => {
-                const currentState = formStoreApi.state.value;
-                onStateChange(currentState);
-            });
-            effects.push(stateChangeEffect);
-        }
 
         // Optional dev tools integration
         if (enableDevTools && typeof window !== 'undefined') {
@@ -58,7 +47,7 @@ export function FormProvider({
         return () => {
             effects.forEach(effect => effect?.dispose?.());
         };
-    }, [formStoreApi, onStateChange, enableDevTools]);
+    }, [formStoreApi, enableDevTools]);
 
     return <FormContext.Provider value={formStoreApi}>{children}</FormContext.Provider>;
 }

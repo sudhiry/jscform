@@ -31,7 +31,6 @@ export type StoreListener = (state: FormState) => void
 export interface FormStoreApi {
     state: Signal<FormState>;
     getState: () => FormState;
-    getInitialState: () => FormState;
     setState: (key: string, value: any) => void;
     context?: any;
     validator?: Ajv;
