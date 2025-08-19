@@ -18,7 +18,6 @@
 - **✅ Contributing Guide**: Added detailed CONTRIBUTING.md with development workflow and community guidelines
 - **✅ Complex Form Example**: Built advanced playground example demonstrating nested objects, conditional fields, and real-time data display
 - **✅ Enhanced Navigation**: Updated forms navigation page with improved UI and status indicators for available examples
-- **✅ Recursive Schema Resolution**: Implemented `retrieveSchemaRecursive` utility for handling nested conditional logic at all schema levels
 - **✅ React 19 Support**: Updated to support React 19 with proper peer dependencies
 - **✅ Monorepo Architecture**: Established clean separation with `@preact/signals-react` as dedicated package
 
@@ -72,10 +71,8 @@
 - Component props interface standardization with schema, data, onChange, error pattern
 
 ### Schema Processing Patterns
-- Recursive schema resolution for handling nested conditional logic at any depth
 - WeakMap-based caching with data-dependent keys for optimal performance
 - Support for if/then/else, oneOf, anyOf, allOf, dependencies, and $ref at all levels
-- Default value computation integrated with recursive schema resolution
 - AJV integration with custom error message parsing and formatting
 
 ## Learnings and Project Insights

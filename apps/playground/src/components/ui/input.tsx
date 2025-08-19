@@ -2,10 +2,12 @@ import * as React from "react"
 import {cn} from "@/lib/utils"
 import {Label} from "@radix-ui/react-label";
 import {useControl} from "@repo/jscform";
+import {useSignals} from "@preact/signals-react/runtime";
 
 // @ts-ignore
-const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, ...props}, ref) => {
-        const {value = '', onChange} = useControl(name);
+const Input = React.forwardRef<HTMLInputElement>(({name, title, className, ...props}, ref) => {
+        useSignals();
+        const {value, onChange} = useControl(name);
         return (
             <div>
                 <Label htmlFor={name}>{title}</Label>
@@ -18,7 +20,7 @@ const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, ...p
                         className
                     )}
                     ref={ref}
-                    value={value || ''}
+                    value={value.value || ''}
                     onChange={(e) => onChange(e.target.value)}
                 />
                 {/*{error && <p className="mt-1 text-sm text-red-500">{error}</p>}*/}

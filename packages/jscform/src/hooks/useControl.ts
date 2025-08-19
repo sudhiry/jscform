@@ -1,53 +1,32 @@
-import {useContext, useMemo, useState} from "react";
+import {useContext, useMemo} from "react";
 import get from "lodash/get";
-import isEqual from "lodash/isEqual";
-import {useSignalEffect} from "@preact/signals-react";
+import {useComputed} from "@preact/signals-react";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
-import {FieldState} from "../store/types";
+import {FieldState, FormStoreApi} from "../store/types";
+import {Signal} from "@preact/signals-react";
 
 export interface UseControlApi {
-    schema: JSONSchema | null | undefined;
-    value: any;
+    schema: Signal<JSONSchema | null | undefined>;
+    value: Signal<any>;
     context: any;
     validator: any;
     onChange: (val: any) => void;
-    fieldState?: FieldState;
+    fieldState?: Signal<FieldState | undefined>;
 }
 
 export const useControl = (schemaKey: string): UseControlApi => {
     const formStore = useContext(FormContext);
     if (!formStore) {
-        throw Error("useControl must be used within a FormProvider");
+        throw new Error("useControl must be used within a FormProvider");
     }
 
-    const { state, setState, context, validator } = formStore;
+    const { state, setState, context, validator } = formStore as FormStoreApi;
 
-    const [value, setValue] = useState(get(state.value.data, schemaKey.split(".")));
-    const [schema, setSchema] = useState(getSchemaFromPath(state.value.schema, schemaKey, "."));
-    const [fieldState, setFieldState] = useState(get(state.value.fieldState, schemaKey));
-
-    useSignalEffect(() => {
-        const newValue = get(state.value.data, schemaKey.split("."));
-        if (!isEqual(newValue, value)) {
-            setValue(newValue);
-        }
-    });
-
-    useSignalEffect(() => {
-        const newSchema = getSchemaFromPath(state.value.schema, schemaKey, ".");
-        if (!isEqual(newSchema, schema)) {
-            setSchema(newSchema);
-        }
-    });
-
-    useSignalEffect(() => {
-        const newFieldState = get(state.value.fieldState, schemaKey);
-        if (!isEqual(newFieldState, fieldState)) {
-            setFieldState(newFieldState);
-        }
-    });
+    const value = useComputed(() => get(state.value.data, schemaKey.split(".")));
+    const schema = useComputed(() => getSchemaFromPath(state.value.schema, schemaKey, "."));
+    const fieldState = useComputed(() => get(state.value.fieldState, schemaKey));
 
     // Memoize onChange handler to prevent unnecessary re-renders
     const onChange = useMemo(() => (val: any) => setState(schemaKey, val), [setState, schemaKey]);
@@ -60,4 +39,4 @@ export const useControl = (schemaKey: string): UseControlApi => {
         onChange,
         fieldState,
     };
-}
+};

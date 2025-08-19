@@ -63,5 +63,4 @@ JSCForm solves these problems by providing a schema-driven approach to form gene
 - **Performance Optimized**: Minimal bundle size with intelligent caching and selective re-renders
 - **Standards-Based**: Full JSON Schema compliance with advanced conditional logic support
 - **Production Ready**: Comprehensive documentation, examples, and contributing guidelines
-- **Recursive Schema Resolution**: Handles complex nested conditional schemas at any depth
 - **Developer Experience**: Extensive playground examples and UI library integration guides

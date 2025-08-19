@@ -12,8 +12,7 @@ import mergeObjects from './mergeObjects';
 import mergeSchemas from './mergeSchemas';
 import {GenericObjectType, JSONSchema, ValidatorType,} from './types';
 import isMultiSelect from './isMultiSelect';
-import {resolveDependencies} from './retrieveSchema';
-import {retrieveSchemaRecursive} from './retrieveSchemaRecursive';
+import retrieveSchema, {resolveDependencies} from './retrieveSchema';
 import * as ValidatorUtil from './validatorUtils';
 import pMap from "p-map";
 import pReduce from "p-reduce";
@@ -140,7 +139,7 @@ export async function computeDefaults(
     } else if (IF_KEY in schema) {
         // Handle conditional schemas (if/then/else)
         const {if: condition, then, else: otherwise, ...remaining} = schema;
-        
+
         // First, compute defaults for the base schema (without conditional parts)
         const baseDefaults = await computeDefaults(validator, remaining as JSONSchema, {
             rootSchema,
@@ -149,13 +148,13 @@ export async function computeDefaults(
             rawFormData: formData as GenericObjectType,
             required,
         });
-        
+
         // Merge base defaults with current form data to evaluate condition
         const dataForCondition = mergeDefaultsWithFormData(baseDefaults as GenericObjectType, formData as GenericObjectType);
-        
+
         // Check condition using ValidatorUtil
         const conditionMet = await ValidatorUtil.isValid(validator, condition as JSONSchema, dataForCondition, rootSchema);
-        
+
         // Choose the appropriate conditional schema
         const conditionalSchema = conditionMet ? then : otherwise;
         if (conditionalSchema && typeof conditionalSchema !== 'boolean') {
@@ -311,7 +310,7 @@ export default async function getDefaultFormState(
     if (!isObject(theSchema)) {
         throw new Error('Invalid schema: ' + theSchema);
     }
-    const schema = await retrieveSchemaRecursive(validator, theSchema, rootSchema || theSchema, formData || {});
+    const schema = await retrieveSchema(validator, theSchema, rootSchema || theSchema, formData || {});
     const defaults = await computeDefaults(validator, schema, {
         rootSchema,
         includeUndefinedValues,

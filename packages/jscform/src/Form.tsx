@@ -4,7 +4,7 @@ import {FormContext, FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
-import {useComputed, useSignalEffect} from "@preact/signals-react";
+import {useSignalEffect} from "@preact/signals-react";
 
 export interface FormProps {
     schema: JSONSchema;
@@ -20,14 +20,14 @@ export interface FormProps {
  * Enhanced Form component that leverages signals features for optimal performance
  */
 export function Form({
-    schema,
-    data,
-    context,
-    validator = ajv,
-    onSubmit,
-    onChange,
-    onValidationChange
-}: FormProps) {
+                         schema,
+                         data,
+                         context,
+                         validator = ajv,
+                         onSubmit,
+                         onChange,
+                         onValidationChange
+                     }: FormProps) {
     return (
         <FormProvider data={data} schema={schema} context={context} validator={validator}>
             <FormContent
@@ -45,18 +45,13 @@ interface FormContentProps {
     onValidationChange?: (isValid: boolean, errors?: any) => void;
 }
 
-function FormContent({ onChange, onValidationChange }: FormContentProps) {
+function FormContent({onChange, onValidationChange}: FormContentProps) {
     const formStore = React.useContext(FormContext);
     if (!formStore) {
         throw new Error("FormContent must be used within a FormProvider");
     }
-    const { state } = formStore;
+    const {state} = formStore;
 
-    const changedSchema = useComputed(() => {
-        return state.value.schema
-    });
-
-    console.log(`changedSchema >>>>`, changedSchema);
 
     // Use signal effects to react to form state changes
     useSignalEffect(() => {
@@ -74,7 +69,7 @@ function FormContent({ onChange, onValidationChange }: FormContentProps) {
         }
     });
 
-    return <DynamicUIComponent />;
+    return <DynamicUIComponent/>;
 }
 
 Form.displayName = 'Form';
