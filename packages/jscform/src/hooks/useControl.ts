@@ -1,11 +1,11 @@
 import {useContext, useMemo, useState} from "react";
 import get from "lodash/get";
 import isEqual from "lodash/isEqual";
+import {useSignalEffect} from "@preact/signals-react";
 import {FormContext} from "../contexts/FormContext";
 import {JSONSchema} from "../utils/types";
 import {getSchemaFromPath} from "../utils/getSchemaFromPath";
 import {FieldState} from "../store/types";
-import {useSignalEffect} from "@preact/signals-react";
 
 export interface UseControlApi {
     schema: JSONSchema | null | undefined;

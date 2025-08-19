@@ -4,9 +4,8 @@ import {Label} from "@radix-ui/react-label";
 import {useControl} from "@repo/jscform";
 
 // @ts-ignore
-const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, default: defaultValue, ...props}, ref) => {
+const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, ...props}, ref) => {
         const {value = '', onChange} = useControl(name);
-        console.log(`Control - ${name}:`, value)
         return (
             <div>
                 <Label htmlFor={name}>{title}</Label>
@@ -19,7 +18,7 @@ const Input = React.forwardRef<HTMLInputElement>(({ name, title, className, defa
                         className
                     )}
                     ref={ref}
-                    value={value || defaultValue || ''}
+                    value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
                 />
                 {/*{error && <p className="mt-1 text-sm text-red-500">{error}</p>}*/}

@@ -28,7 +28,6 @@ export function FormProvider({
 
     useEffect(() => {
         const effects: any[] = [];
-
         // Optional dev tools integration
         if (enableDevTools && typeof window !== 'undefined') {
             const devToolsEffect = effect(() => {

@@ -4,7 +4,7 @@ import {FormContext, FormProvider} from "./contexts/FormContext";
 import type {Ajv} from "ajv";
 import {DynamicUIComponent} from "./components/DynamicUIComponent";
 import {ajv} from "./defaultAjv";
-import {useSignalEffect} from "@preact/signals-react";
+import {useComputed, useSignalEffect} from "@preact/signals-react";
 
 export interface FormProps {
     schema: JSONSchema;
@@ -51,6 +51,12 @@ function FormContent({ onChange, onValidationChange }: FormContentProps) {
         throw new Error("FormContent must be used within a FormProvider");
     }
     const { state } = formStore;
+
+    const changedSchema = useComputed(() => {
+        return state.value.schema
+    });
+
+    console.log(`changedSchema >>>>`, changedSchema);
 
     // Use signal effects to react to form state changes
     useSignalEffect(() => {

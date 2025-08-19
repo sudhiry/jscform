@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import {useControl} from "@repo/jscform";
 
 // @ts-ignore
-const Checkbox = React.forwardRef<HTMLInputElement>(({default: defaultValue, name = '', title, className, ...props}, ref) => {
+const Checkbox = React.forwardRef<HTMLInputElement>(({name = '', title, className, ...props}, ref) => {
     const {value = false, onChange} = useControl(name);
     return (
         <div className="flex flex-row space-x-2 align-middle">

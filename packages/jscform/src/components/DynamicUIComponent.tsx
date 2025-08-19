@@ -1,4 +1,4 @@
-import React, {memo, ReactElement, useMemo} from "react";
+import React, {memo, ReactElement} from "react";
 import { useComputed } from "@preact/signals-react";
 import {PROPERTIES_KEY, UI_WIDGET} from "../utils/constants";
 import {globalRegistry} from "../createRegistry";
@@ -10,10 +10,11 @@ interface DynamicUIComponentProps {
 }
 
 export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProps) => {
-    const schema = useSchema(schemaKey);
+    const schemaSignal = useSchema(schemaKey);
 
     // Use computed to optimize widget resolution
     const widgetInfo = useComputed(() => {
+        const schema = schemaSignal.value;
         if (!schema) return null;
 
         if (!schema[UI_WIDGET]) {
@@ -36,6 +37,7 @@ export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProp
 
     // Use computed for child component keys to optimize re-renders
     const childKeys = useComputed(() => {
+        const schema = schemaSignal.value;
         if (!schema || !schema[PROPERTIES_KEY]) return [];
         return Object.keys(schema[PROPERTIES_KEY]).map(property =>
             `${schemaKey ? schemaKey + "." : ""}${property}`
@@ -49,21 +51,19 @@ export const DynamicUIComponent = memo(({schemaKey = ""}: DynamicUIComponentProp
     const { uiWidget, Widget, hasProperties } = widgetInfo.value;
 
     if (!hasProperties) {
-        return <Widget {...schema} {...uiWidget} name={schemaKey}></Widget>
+        return <Widget {...schemaSignal.value} {...uiWidget} name={schemaKey}></Widget>
     }
 
     const ContainerComponent = Widget || React.Fragment;
 
     // Memoize child components to prevent unnecessary re-renders
-    const childComponents = useMemo(() => {
-        return childKeys.value.map((childKey: string) => (
-            <DynamicUIComponent
-                schemaKey={childKey}
-                key={childKey}
-                {...uiWidget}
-            />
-        ));
-    }, [childKeys.value, uiWidget]);
+    const childComponents = childKeys.value.map((childKey: string) => (
+        <DynamicUIComponent
+            schemaKey={childKey}
+            key={childKey}
+            {...uiWidget}
+        />
+    ));
 
     return <ContainerComponent>{childComponents}</ContainerComponent>;
 });

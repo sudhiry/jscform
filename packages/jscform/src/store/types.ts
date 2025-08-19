@@ -21,8 +21,7 @@ export interface FieldState {
 export interface FormState {
     schema: JSONSchema;
     data: any;
-    validator?: Ajv;
-    context?: any;
+    context: any;
     fieldState?: Record<string, FieldState>;
 }
 
@@ -30,7 +29,6 @@ export type StoreListener = (state: FormState) => void
 
 export interface FormStoreApi {
     state: Signal<FormState>;
-    getState: () => FormState;
     setState: (key: string, value: any) => void;
     context?: any;
     validator?: Ajv;
